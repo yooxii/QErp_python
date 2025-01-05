@@ -1,0 +1,12 @@
+{
+    "name": "QErp",
+    "version": "1.0.0",
+    "description": "QE report system",
+    "initialdir": "C:\\Users\\LiZB1\\Desktop\\曙光出貨報告資料(勿刪)",
+    "FLAGS": {
+        "seq_start": "SEQ.",
+        "pass": "---------- PASS",
+        "seq_end": "----------------",
+        "Vdc_Read": "Vdc Read"
+    }
+}
