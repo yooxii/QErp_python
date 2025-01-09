@@ -19,12 +19,12 @@
             "Td Reading"
         ]
     },
-    "EXCEL": {
+    "Report": {
         "sheet_name": "出货报告附档",
         "flag_data_start_row": "电源性能参数（区分high、low line）",
         "flag_data_start_col": "检验类型",
         "flag_data_end_col": "检验结果",
-        "data_start_col_name": "GG",
+        "data_start_col_name": "BB",
         "data_end_col_name": "ZZ"
     }
 }
