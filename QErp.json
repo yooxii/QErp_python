@@ -3,12 +3,28 @@
     "version": "1.0.0",
     "description": "QE report system",
     "initialdir": "D:\\Desktop\\曙光出貨報告資料(勿刪)",
-    "FLAGS": {
+    "TXT": {
         "info_start": "Information",
         "seq_start": "SEQ.",
         "seq_end": "----------------",
         "pass": "---------- PASS",
-        "read": ["Reading", "Vdc Read", "Vpp Read"],
-        "noread": ["Pdc Reading", "Reading/", "Td Reading"]
+        "read": [
+            "Reading",
+            "Vdc Read",
+            "Vpp Read"
+        ],
+        "noread": [
+            "Pdc Reading",
+            "Reading/",
+            "Td Reading"
+        ]
+    },
+    "EXCEL": {
+        "sheet_name": "出货报告附档",
+        "flag_data_start_row": "电源性能参数（区分high、low line）",
+        "flag_data_start_col": "检验类型",
+        "flag_data_end_col": "检验结果",
+        "data_start_col_name": "GG",
+        "data_end_col_name": "ZZ"
     }
 }

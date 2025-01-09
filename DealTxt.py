@@ -5,7 +5,7 @@ from tkinter import filedialog
 
 with open('QErp.json', 'r', encoding='utf-8') as f:
     qerp = json.load(f)
-    FLAGS = qerp['FLAGS']
+    TXT_FLAGS = qerp['TXT']
 
 
 def open_file():
@@ -29,18 +29,18 @@ def deal_data(datas: List[str]):
     # 处理数据内容
     i = 0
     while i < len(datas):
-        if datas[i].find(FLAGS['seq_start']) != -1:
-            tmp = datas[i].replace(FLAGS['seq_start'], '')
+        if datas[i].find(TXT_FLAGS['seq_start']) != -1:
+            tmp = datas[i].replace(TXT_FLAGS['seq_start'], '')
             reads = []
             for j in range(i+1, len(datas)):
-                if datas[j].find(FLAGS['seq_end']) != -1:
+                if datas[j].find(TXT_FLAGS['seq_end']) != -1:
                     break
                 is_read = 0
-                for flag in FLAGS['read']:
+                for flag in TXT_FLAGS['read']:
                     if datas[j].find(flag) != -1:
                         is_read = 1
                         break
-                for flag in FLAGS['noread']:
+                for flag in TXT_FLAGS['noread']:
                     if datas[j].find(flag) != -1:
                         is_read = 0
                         break
@@ -54,9 +54,9 @@ def deal_data(datas: List[str]):
                         break
             i = j
             if len(reads) != 0:
-                seqs[tmp.replace(FLAGS['pass'], '')] = reads
+                seqs[tmp.replace(TXT_FLAGS['pass'], '')] = reads
         try:
-            if datas[i].find(FLAGS['info_start']) != -1:
+            if datas[i].find(TXT_FLAGS['info_start']) != -1:
                 if len(seqs) != 0:
                     res.append(seqs)
                 seqs = {}
