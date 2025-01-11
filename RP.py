@@ -11,64 +11,49 @@ with open('QErp.json', 'r', encoding='utf-8') as f:
     qerp = json.load(f)
     RP = qerp['Report']
 
-file_path = ''
-
 
 def cfg_excel():
-    """
-    配置Excel窗口
-    """
-    # 打开一个配置窗口
+    """配置Excel窗口"""
     root = tk.Tk()
     root.title("配置Excel")
     root.geometry("600x600")
 
     input_box = []
 
-    # 输入框框架
     input_frame = tk.Frame(root)
     input_frame.pack(pady=2)
 
-    # 输入框
     for key, value in RP.items():
-        tk.Label(input_frame, text=key+':').pack(anchor='w', pady=2)  # 标签左对齐，添加垂直间距
+        tk.Label(input_frame, text=f"{key}:").pack(anchor='w', pady=2)
         input_excel = tk.Entry(input_frame, width=40, justify='center')
         input_excel.insert(0, value)
         input_excel.pack(pady=2)
         input_box.append(input_excel)
 
-    # 按钮框架
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=20)
 
-    # 保存配置
-    btn_save = tk.Button(btn_frame, text="保存", command=lambda: { save_cfg(input_box), root.destroy()})
+    btn_save = tk.Button(btn_frame, text="保存", command=lambda: [save_cfg(input_box), root.destroy()])
     btn_save.pack(side=tk.LEFT, padx=10)
 
-    # 退出窗口
-    btn_exit = tk.Button(btn_frame, text="不保存", command=lambda: { root.destroy() })
+    btn_exit = tk.Button(btn_frame, text="不保存", command=root.destroy)
     btn_exit.pack(side=tk.LEFT, padx=10)
 
-    # 运行窗口
     root.mainloop()
 
 
 def save_cfg(input_box):
-    """
-    保存配置
-    :param input_box: 输入框列表
-    :return:
-    """
-    for i in range(len(input_box)):
-        RP[list(RP.keys())[i]] = input_box[i].get()
+    """保存配置"""
+    for i, input_excel in enumerate(input_box):
+        RP[list(RP.keys())[i]] = input_excel.get()
     qerp['Report'] = RP
     with open('QErp.json', 'w', encoding='utf-8') as f:
         json.dump(qerp, f, ensure_ascii=False, indent=4)
 
+
 def show_datas():
-    """
-    显示数据窗口
-    """
+    """显示数据窗口"""
+    excel = Excel()
     tests = excel.read_excel()
     # 打开一个数据窗口
     root = tk.Tk()
@@ -112,7 +97,7 @@ def show_datas():
     btn_load.pack(side=tk.LEFT, padx=2)
 
     # 保存
-    btn_save = tk.Button(btn_frame, text="保存", command=lambda: { excel.save_excel(data_box), root.quit() })
+    btn_save = tk.Button(btn_frame, text="另存为", command=lambda: { excel.save_excel(data_box), root.quit() })
     btn_save.pack(side=tk.LEFT, padx=2)
 
     # 退出
@@ -129,7 +114,7 @@ def load_tests(select_box):
     :param root: 数据窗口
     :return:
     """
-    values = dt.deal_data(dt.open_file())[0]
+    values = dt.deal_data1(dt.open_file())[0]
     value = ["NA"] + list(values.keys())
     for i in range(len(select_box)):
         select_box[i]['values'] = value
@@ -156,42 +141,44 @@ def find_tests(sheet):
 
     return res
 
-class excel:
-    """
-    Excel操作类
-    """
+class Excel:
+    """Excel操作类"""
 
     def __init__(self):
+        self.file_path = None
+        self.open_file()
+        self.wb = xl.load_workbook(self.file_path)
+
+    def open_file(self):
         root = tk.Tk()
         root.withdraw()
-        file_path = filedialog.askopenfilename(title="Open Excel file",initialdir=qerp['initialdir'],filetypes=[("Excel files", "*.xlsx *.xls")])
-        return file_path
+        self.file_path = filedialog.askopenfilename(
+            title="Open Excel file",
+            initialdir=qerp['initialdir'],
+            filetypes=[("Excel files", "*.xlsx *.xls")]
+        )
 
-    def read_excel():
-        wb = xl.load_workbook(file_path)
-        # 打开指定名称的工作表
-        sheet = wb[RP['sheet_name']]
-        print(sheet.title)
+    def read_excel(self):
+        if not self.file_path:
+            self.open_file()
+        sheet = self.wb[RP['sheet_name']]
+        print(sheet.title)      # 打印sheet名称
         res = find_tests(sheet)
-        print(res)
+        print(res)              # 打印测试数据
         return res
 
-    def save_excel(data):
-        save_file = filedialog.asksaveasfilename(title="保存Excel文件", initialdir=qerp['initialdir'], filetypes=[("Excel files", "*.xlsx *.xls")])
+    def save_excel(self, data):
+        save_file = filedialog.asksaveasfilename(
+            title="另存为Excel文件",
+            initialdir=qerp['initialdir'],
+            filetypes=[("Excel files", "*.xlsx *.xls")]
+        )
         if save_file:
-            wb = xl.load_workbook(file_path)
-            sheet = wb[RP['sheet_name']]
+            sheet = self.wb[RP['sheet_name']]
             for i in range(len(data)):
                 sheet.cell(row=data[i]['row'], column=data[i]['col']).value = data[i]['value']
-            wb.save(save_file)
+            self.wb.save(save_file)
 
-
-    def write_excel(data):
-        wb = xl.load_workbook(file_path)
-        sheet = wb.active[RP['sheet_name']]
-
-
-        wb.save(file_path)
 
 
 if __name__ == '__main__':

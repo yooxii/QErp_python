@@ -23,7 +23,7 @@ def open_file():
     file.close()
     return res
 
-def deal_data(datas: List[str]):
+def deal_data1(datas: List[str]):
     res = []
     seqs = {}
     # 处理数据内容
@@ -66,6 +66,31 @@ def deal_data(datas: List[str]):
         i += 1
     return res
 
+def deal_data2(datas: List):
+    # datas = [{str:[[]]}]
+    res = []
+    for uut in datas:
+        UUT = {}
+        for seqName, reads in uut.items():
+            Read = []
+            isFirst = 1
+            ReadNo = -1
+            for read in reads:
+                if isFirst:
+                    for item in read:
+                        ReadNo += 1
+                        for flag in TXT_FLAGS['read']:
+                            if item == flag:
+                                isFirst = 0
+                                break
+                        if not isFirst and ReadNo:
+                            break
+                if len(read) > ReadNo:
+                    Read.append(read[ReadNo])
+            UUT[seqName] =Read
+        res.append(UUT)
+    return res
+
 def show_data(data):
     res = []
     for seq in data:
@@ -81,6 +106,7 @@ def show_data(data):
 
 if __name__ == '__main__':
     f = open('res.txt', 'w', encoding='utf-8')
-    f.write(str(deal_data(open_file())))
+    data = deal_data1(open_file())
+    data = deal_data2(data)
+    f.write(json.dumps(data, indent=4, ensure_ascii=False))
     f.close()
-    # print(deal_txt(data))

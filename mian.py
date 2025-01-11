@@ -30,7 +30,7 @@ def disp_data():
     text_box.config(yscrollcommand=scrollbar.set)
 
     # 处理数据
-    res = DealTxt.deal_data(DealTxt.open_file())
+    res = DealTxt.deal_data1(DealTxt.open_file())
     res = DealTxt.show_data(res)
     
     # 显示数据
