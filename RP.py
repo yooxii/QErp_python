@@ -9,8 +9,10 @@ import DealTxt as dt
 
 with open('QErp.json', 'r', encoding='utf-8') as f:
     qerp = json.load(f)
-    RP = qerp['Report']
+    report = qerp['Report']
 
+# 一些全局变量
+# global txt_seqs
 
 def cfg_excel():
     """配置Excel窗口"""
@@ -23,7 +25,7 @@ def cfg_excel():
     input_frame = tk.Frame(root)
     input_frame.pack(pady=2)
 
-    for key, value in RP.items():
+    for key, value in report.items():
         tk.Label(input_frame, text=f"{key}:").pack(anchor='w', pady=2)
         input_excel = tk.Entry(input_frame, width=40, justify='center')
         input_excel.insert(0, value)
@@ -45,8 +47,8 @@ def cfg_excel():
 def save_cfg(input_box):
     """保存配置"""
     for i, input_excel in enumerate(input_box):
-        RP[list(RP.keys())[i]] = input_excel.get()
-    qerp['Report'] = RP
+        report[list(report.keys())[i]] = input_excel.get()
+    qerp['Report'] = report
     with open('QErp.json', 'w', encoding='utf-8') as f:
         json.dump(qerp, f, ensure_ascii=False, indent=4)
 
@@ -97,7 +99,7 @@ def show_datas():
     btn_load.pack(side=tk.LEFT, padx=2)
 
     # 保存
-    btn_save = tk.Button(btn_frame, text="另存为", command=lambda: { excel.save_excel(data_box), root.quit() })
+    btn_save = tk.Button(btn_frame, text="另存为", command=lambda: { excel.save_excel(tests, data_box, txt_seqs), root.quit() })
     btn_save.pack(side=tk.LEFT, padx=2)
 
     # 退出
@@ -114,22 +116,30 @@ def load_tests(select_box):
     :param root: 数据窗口
     :return:
     """
-    values = dt.deal_data1(dt.open_file())[0]
+    global txt_seqs
+    txt_seqs = dt.deal_data1(dt.open_file())
+    txt_seqs = dt.deal_data2(txt_seqs)
+    values = txt_seqs[0]
     value = ["NA"] + list(values.keys())
     for i in range(len(select_box)):
         select_box[i]['values'] = value
         select_box[i].set(value[0])
 
 def find_tests(sheet):
+    """
+    找到测试数据
+    :param sheet: Excel sheet
+    :return: 测试数据字典
+    """
     res = {}
     for col in sheet.columns:
         for cell in col:
             if cell.value is None:
                 break
-            if cell.value == RP['flag_data_start_row']:
+            if cell.value == report['flag_data_start_row']:
                 r = cell.row
                 for c in range(cell.column, sheet.max_column+1):
-                    if sheet.cell(row=r, column=c).value == RP['flag_data_start_col']:
+                    if sheet.cell(row=r, column=c).value == report['flag_data_start_col']:
                         break
                 start = {'row': r, 'col': c}
                 break
@@ -161,25 +171,56 @@ class Excel:
     def read_excel(self):
         if not self.file_path:
             self.open_file()
-        sheet = self.wb[RP['sheet_name']]
+        sheet = self.wb[report['sheet_name']]
         print(sheet.title)      # 打印sheet名称
         res = find_tests(sheet)
         print(res)              # 打印测试数据
         return res
 
-    def save_excel(self, data):
+    def save_excel(self, tests, data_box, seqs):
+        if not seqs:
+            # 弹出警告窗口，提示用户先加载数据
+            root = tk.Tk()
+            root.title("警告")
+            root.geometry("300x100")
+            tk.Label(root, text="请先加载数据！").pack(pady=20)
+            btn_ok = tk.Button(root, text="确定", command=root.destroy)
+            btn_ok.pack(pady=20)
+            root.mainloop()
+            return
         save_file = filedialog.asksaveasfilename(
             title="另存为Excel文件",
             initialdir=qerp['initialdir'],
             filetypes=[("Excel files", "*.xlsx *.xls")]
         )
-        if save_file:
-            sheet = self.wb[RP['sheet_name']]
-            for i in range(len(data)):
-                sheet.cell(row=data[i]['row'], column=data[i]['col']).value = data[i]['value']
-            self.wb.save(save_file)
+        save_selects = {}
+        # for j, data in enumerate(data_box):
+        #     save_selects[list(tests.keys())[j]] = data.get()
+        # save_select(save_selects)
+        with open('Select.json', 'r', encoding='utf-8') as f:
+            save_selects = json.load(f)
 
+        for i in range(len(seqs)):
+            for select_key, select in save_selects.items():
+                if select == "NA":
+                    continue
+                row = tests[select_key]['row']
+                col = tests[select_key]['col']+i+1
+                value = seqs[i][select]
+                self.wb[report['sheet_name']].cell(row=row, column=col).value = str(value)
 
+        # dt.save_file(save_file, save_seqs)
+        save_file = save_file.replace('.xlsx', '')
+        self.wb.save(save_file+'.xlsx')
+
+def save_select(save_selects):
+    """
+    保存选择
+    :param save_selects: 选择字典
+    :return:
+    """
+    with open('Select.json', 'w', encoding='utf-8') as f:
+        json.dump(save_selects, f, ensure_ascii=False, indent=4)
 
 if __name__ == '__main__':
     # file_path = open_excel()
