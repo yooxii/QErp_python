@@ -46,7 +46,7 @@ def initialize_window(root):
         Comb_data.pack(pady=2, side=tk.LEFT)
         data_box.append(Comb_data)
 
-def cfg_excel():
+def cfg_excel(root_main):
     """配置Excel窗口"""
     root = tk.Tk()
     root.title("配置Excel")
@@ -66,10 +66,10 @@ def cfg_excel():
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=20)
     
-    btn_save = tk.Button(btn_frame, text="保存", command=lambda: (save_cfg(input_box), root.destroy()))
+    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg(input_box), root.destroy(), initialize_window(root_main)))
     btn_save.pack(side=tk.LEFT, padx=10)
 
-    btn_exit = tk.Button(btn_frame, text="不保存", command=root.destroy)
+    btn_exit = tk.Button(btn_frame, text="返回", command=root.destroy)
     btn_exit.pack(side=tk.LEFT, padx=10)
 
     root.mainloop()
@@ -116,6 +116,10 @@ def show_datas():
     file_menu.add_command(label="另存为", command=lambda: excelrp.save_excel(data_box, txt_seqs))
     menubar.add_cascade(label="文件", menu=file_menu)
 
+    setting_menu = tk.Menu(menubar, tearoff=0)
+    setting_menu.add_command(label="配置Excel", command=lambda: cfg_excel(root))
+    menubar.add_cascade(label="设置", menu=setting_menu)
+
     menubar.add_command(label="退出", command=root.quit)
     root.config(menu=menubar)
 
@@ -132,8 +136,8 @@ def load_select(select_box):
     except FileNotFoundError:
         messagebox.showwarning("警告", "选择文件不存在，无法加载选择。")
 
-def find_tests(sheet):
-    """找到测试数据"""
+def find_tests_name(sheet):
+    """找到测试项目名称和起始位置"""
     res = {}
     start = None
     
@@ -176,7 +180,7 @@ class ExcelRp:
         if not self.file_path:
             self.open_file()
         sheet = self.wb[report['sheet_name']]
-        res = find_tests(sheet)
+        res = find_tests_name(sheet)
         return res
 
     def save_excel(self, data_box, seqs):
@@ -224,5 +228,4 @@ def save_select1(saveSelects):
         json.dump(saveSelects, f, ensure_ascii=False, indent=4)
 
 if __name__ == '__main__':
-    cfg_excel()
     show_datas()
