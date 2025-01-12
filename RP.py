@@ -12,6 +12,7 @@ def load_config():
 
 qerp = load_config()
 report = qerp['Report']
+txt = qerp['TXT']
 
 def initialize_window(root):
     """初始化窗口布局和变量"""
@@ -19,11 +20,11 @@ def initialize_window(root):
         if not isinstance(widget, tk.Menu):
             widget.destroy()
 
-    global data_box, txt_seqs, excelrp, tests
+    global data_box, txt_seqs, excelrp, tests_name
     data_box = []
     txt_seqs = []
     excelrp = ExcelRp()
-    tests = excelrp.read_excel()
+    tests_name = excelrp.read_excel()
     
     data_canvas = tk.Canvas(root, width=600, height=400)
     data_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -37,7 +38,7 @@ def initialize_window(root):
     data_frame = tk.Frame(data_canvas)
     data_canvas.create_window((0, 0), window=data_frame, anchor="nw")
 
-    for key, value in tests.items():
+    for key, value in tests_name.items():
         small_frame = tk.Frame(data_frame)
         small_frame.pack(pady=2, side=tk.TOP)
         tk.Label(small_frame, text=f"{key}:", justify='left', width=30).pack(anchor='w', pady=2, side=tk.LEFT)
@@ -194,20 +195,29 @@ class ExcelRp:
             filetypes=[("Excel files", "*.xlsx *.xls")]
         )
         
-        saveSelects = {list(tests.keys())[j]: data.get() for j, data in enumerate(data_box)}
-        save_select(saveSelects)
+        saveSelects = {list(tests_name.keys())[j]: data.get() for j, data in enumerate(data_box)}
 
         for i in range(len(seqs)):
             for select_key, select in saveSelects.items():
                 if select == "NA":
                     continue
-                if select_key in tests:
-                    row = tests[select_key]['row']
-                    col = tests[select_key]['col'] + i + 1
+                if select_key in tests_name:
+                    row = tests_name[select_key]['row']
+                    col = tests_name[select_key]['col'] + i + 1
                     value = seqs[i].get(select, "")
-                    self.wb[report['sheet_name']].cell(row=row, column=col).value = str(value)
+                    flag = False
+                    for st in txt['select']:
+                        if select_key.find(st) != -1:
+                            Cvalue = value[txt['select'][st]]
+                            flag = True
+                    if not flag:
+                        Cvalue = value[1]
+                    # 保留三位小数
+                    self.wb[report['sheet_name']].cell(row=row, column=col).number_format = '0.000'
+                    self.wb[report['sheet_name']].cell(row=row, column=col).value = float(Cvalue)
 
         self.wb.save(f"{save_file.replace('.xlsx', '')}.xlsx")
+        save_select(saveSelects)
 
 def save_select(saveSelects):
     """保存选择"""
