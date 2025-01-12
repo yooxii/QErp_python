@@ -72,6 +72,25 @@ def cfg_excel(root_main):
 
     root.mainloop()
 
+def cfg_txt(txt_config):
+    """配置TXT窗口"""
+    root = tk.Tk()
+    root.title("配置TXT")
+    root.geometry("600x600")
+    
+    input_box = create_input_box(root, txt)
+    
+    btn_frame = tk.Frame(root)
+    btn_frame.pack(pady=20)
+    
+    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg(input_box), root.destroy()))
+    btn_save.pack(side=tk.LEFT, padx=10)
+
+    btn_exit = tk.Button(btn_frame, text="返回", command=root.destroy)
+    btn_exit.pack(side=tk.LEFT, padx=10)
+
+    root.mainloop()
+
 def create_input_box(root, report):
     """创建输入框"""
     input_box = []
@@ -123,18 +142,19 @@ def show_datas():
     menubar = tk.Menu(root)
 
     file_menu = tk.Menu(menubar, tearoff=0)
-    file_menu.add_command(label="打开新报告", command=lambda: initialize_window(root))
-    file_menu.add_command(label="另存为", command=lambda: excelrp.save_excel(data_box, txt_seqs))
-    menubar.add_cascade(label="文件", menu=file_menu)
+    file_menu.add_command(label="打开报告", command=lambda: initialize_window(root))
+    file_menu.add_command(label="报告另存为", command=lambda: excelrp.save_excel(data_box, txt_seqs))
+    menubar.add_cascade(label="报告", menu=file_menu)
     
     data_menu = tk.Menu(menubar, tearoff=0)
-    data_menu.add_command(label="选择数据", command=lambda: load_tests(data_box))
+    data_menu.add_command(label="选择数据文件", command=lambda: load_tests(data_box))
     data_menu.add_command(label="读取选择", command=lambda: load_select(data_box))
     data_menu.add_command(label="保存选择", command=lambda: save_select(data_box))
     menubar.add_cascade(label="数据", menu=data_menu)
 
     setting_menu = tk.Menu(menubar, tearoff=0)
-    setting_menu.add_command(label="配置Excel", command=lambda: cfg_excel(root))
+    setting_menu.add_command(label="配置Report", command=lambda: cfg_excel(root))
+    setting_menu.add_command(label="配置TXT", command=lambda: cfg_txt(txt))
     menubar.add_cascade(label="设置", menu=setting_menu)
 
     menubar.add_command(label="退出", command=root.quit)
@@ -145,8 +165,16 @@ def show_datas():
 
 def load_select(select_box):
     """加载选择"""
+    # 打开路径选择框
+    file_path = filedialog.askopenfilename(
+        title="选择选择文件",
+        initialdir=qerp['initialdir'],
+        filetypes=[("保存的选择文件", "*.json")]
+    )
+    if not file_path:
+        return
     try:
-        with open('Select.json', 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             save_selects = json.load(f)
         for i, select_key in enumerate(save_selects.keys()):
             select_box[i].set(save_selects[select_key])
@@ -234,13 +262,14 @@ class ExcelRp:
                     col = tests_name[select_key]['col'] + i + 1
                     value = seqs[i].get(select, "")
                     flag = False
-                    for st in txt['select']:
-                        if select_key.find(st) != -1:
-                            Cvalue = value[txt['select'][st]]
+                    for st_key, st_value in txt['select'].items():
+                        if select_key.find(st_key) != -1:
+                            Cvalue = value[st_value[0]][st_value[1]]
                             flag = True
                             break
                     if not flag:
-                        Cvalue = value[1]
+                        # 未找到匹配的选择项，使用第一个值
+                        Cvalue = value[list(value.keys())[0]][0]
                     # 保留三位小数
                     self.wb[report['sheet_name']].cell(row=row, column=col).number_format = '0.000'
                     self.wb[report['sheet_name']].cell(row=row, column=col).value = float(Cvalue)

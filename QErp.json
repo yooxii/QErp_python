@@ -18,9 +18,14 @@
             "Reading/",
             "Td Reading"
         ],
+        "read_end": "+++",
         "select": {
-            "效率": 4,
-            "12vs": 5
+            "Iin": ["Reading", 0],
+            "效率": ["Reading", 3],
+            "12v/": ["Vdc Read", 0],
+            "12vs/": ["Vdc Read", 4],
+            "12v Ripple": ["Vpp Read", 0],
+            "12vs Ripple": ["Vpp Read", 4]
         }
     },
     "Report": {
