@@ -17,7 +17,11 @@
             "Pdc Reading",
             "Reading/",
             "Td Reading"
-        ]
+        ],
+        "select": {
+            "效率" : 4,
+            "12vs" : 5
+        }
     },
     "Report": {
         "sheet_name": "出货报告附档",
