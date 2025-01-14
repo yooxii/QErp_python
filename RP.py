@@ -64,7 +64,7 @@ def cfg_excel(root_main):
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=20)
     
-    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg(input_box), root.destroy(), initialize_window(root_main)))
+    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg_report(input_box), root.destroy(), initialize_window(root_main)))
     btn_save.pack(side=tk.LEFT, padx=10)
 
     btn_exit = tk.Button(btn_frame, text="返回", command=root.destroy)
@@ -83,7 +83,7 @@ def cfg_txt(txt_config):
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=20)
     
-    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg(input_box), root.destroy()))
+    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg_txt(input_box), root.destroy()))
     btn_save.pack(side=tk.LEFT, padx=10)
 
     btn_exit = tk.Button(btn_frame, text="返回", command=root.destroy)
@@ -106,11 +106,22 @@ def create_input_box(root, report):
     
     return input_box
 
-def save_cfg(input_box):
-    """保存配置"""
+def save_cfg_report(input_box):
+    """保存report配置"""
     for i, input_excel in enumerate(input_box):
         report[list(report.keys())[i]] = input_excel.get()
     qerp['Report'] = report
+    try:
+        with open('QErp.json', 'w', encoding='utf-8') as f:
+            json.dump(qerp, f, ensure_ascii=False, indent=4)
+    except IOError as e:
+        messagebox.showerror("错误", f"保存配置文件失败: {str(e)}")
+
+def save_cfg_txt(input_box):
+    """保存txt配置"""
+    for i, input_excel in enumerate(input_box):
+        txt[list(txt.keys())[i]] = input_excel.get()
+    qerp['TXT'] = txt
     try:
         with open('QErp.json', 'w', encoding='utf-8') as f:
             json.dump(qerp, f, ensure_ascii=False, indent=4)
@@ -154,7 +165,7 @@ def show_datas():
 
     setting_menu = tk.Menu(menubar, tearoff=0)
     setting_menu.add_command(label="配置Report", command=lambda: cfg_excel(root))
-    setting_menu.add_command(label="配置TXT", command=lambda: cfg_txt(txt))
+    # setting_menu.add_command(label="配置TXT", command=lambda: cfg_txt(txt))
     menubar.add_cascade(label="设置", menu=setting_menu)
 
     menubar.add_command(label="退出", command=root.quit)
