@@ -2,8 +2,8 @@
     "name": "QErp",
     "version": "1.0.0",
     "description": "QE report system",
-    "initialdir": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ014-7LAG/20240823",
-    "selectfile": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ014-7LAG/20240823/Select.json",
+    "initialdir": "C:/Users/LiZB1/Desktop/曙光出貨報告資料(勿刪)/FSJ014-7LAG/20240823",
+    "selectfile": "C:/Users/LiZB1/Desktop/曙光出貨報告資料(勿刪)/FSJ014-7LAG/20240823/Select.json",
     "TXT": {
         "info_start": "Information",
         "seq_start": "SEQ.",
