@@ -64,7 +64,7 @@ def cfg_excel(root_main):
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=20)
     
-    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg(input_box), root.destroy(), initialize_window(root_main)))
+    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_reportcfg(input_box), root.destroy(), initialize_window(root_main)))
     btn_save.pack(side=tk.LEFT, padx=10)
 
     btn_exit = tk.Button(btn_frame, text="返回", command=root.destroy)
@@ -83,7 +83,7 @@ def cfg_txt(txt_config):
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=20)
     
-    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_cfg(input_box), root.destroy()))
+    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_reportcfg(input_box), root.destroy()))
     btn_save.pack(side=tk.LEFT, padx=10)
 
     btn_exit = tk.Button(btn_frame, text="返回", command=root.destroy)
@@ -106,11 +106,14 @@ def create_input_box(root, report):
     
     return input_box
 
-def save_cfg(input_box):
+def save_reportcfg(input_box):
     """保存配置"""
     for i, input_excel in enumerate(input_box):
         report[list(report.keys())[i]] = input_excel.get()
     qerp['Report'] = report
+    savecfg()
+
+def savecfg():
     try:
         with open('QErp.json', 'w', encoding='utf-8') as f:
             json.dump(qerp, f, ensure_ascii=False, indent=4)
@@ -142,15 +145,17 @@ def show_datas():
     menubar = tk.Menu(root)
 
     file_menu = tk.Menu(menubar, tearoff=0)
+    file_menu.add_command(label="选择文件夹", command=lambda: load_rootpath())
     file_menu.add_command(label="打开报告", command=lambda: initialize_window(root))
     file_menu.add_command(label="报告另存为", command=lambda: excelrp.save_excel(data_box, txt_seqs))
     menubar.add_cascade(label="报告", menu=file_menu)
     
     data_menu = tk.Menu(menubar, tearoff=0)
-    data_menu.add_command(label="选择数据文件", command=lambda: load_tests(data_box))
-    data_menu.add_command(label="读取选择", command=lambda: load_select(data_box))
+    data_menu.add_command(label="打开数据文件", command=lambda: load_tests(data_box))
+    data_menu.add_command(label="打开选择文件", command=lambda: load_select_path())
+    data_menu.add_command(label="加载选择", command=lambda: load_selects(data_box, qerp['selectfile']))
     data_menu.add_command(label="保存选择", command=lambda: save_select(data_box))
-    menubar.add_cascade(label="数据", menu=data_menu)
+    menubar.add_cascade(label="数据处理", menu=data_menu)
 
     setting_menu = tk.Menu(menubar, tearoff=0)
     setting_menu.add_command(label="配置Report", command=lambda: cfg_excel(root))
@@ -160,21 +165,36 @@ def show_datas():
     menubar.add_command(label="退出", command=root.quit)
     root.config(menu=menubar)
 
-    initialize_window(root)
+    # initialize_window(root)
     root.mainloop()
 
-def load_select(select_box):
+def load_rootpath():
+    """加载文件夹"""
+    # 打开路径选择框
+    rootpath = filedialog.askdirectory(
+        title="选择文件夹",
+        initialdir=qerp['initialdir']
+    )
+    qerp['initialdir'] = rootpath
+    return rootpath
+
+def load_select_path():
     """加载选择"""
     # 打开路径选择框
-    file_path = filedialog.askopenfilename(
+    selectFile_path = filedialog.askopenfilename(
         title="选择选择文件",
         initialdir=qerp['initialdir'],
         filetypes=[("保存的选择文件", "*.json")]
     )
-    if not file_path:
-        return
+    qerp['selectfile'] = selectFile_path
+    savecfg() # 保存选择文件路径
+    return selectFile_path
+
+def load_selects(select_box, selectFile_path):
+    if not selectFile_path:
+        selectFile_path = load_select_path()
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(selectFile_path, 'r', encoding='utf-8') as f:
             save_selects = json.load(f)
         for i, select_key in enumerate(save_selects.keys()):
             select_box[i].set(save_selects[select_key])
@@ -182,6 +202,15 @@ def load_select(select_box):
         messagebox.showwarning("警告", "选择文件不存在，无法加载选择。")
     except json.JSONDecodeError as e:
         messagebox.showerror("错误", f"加载选择时出错: {str(e)}")
+
+def save_select(data_box):
+    """保存选择"""
+    saveSelects = {list(tests_name.keys())[j]: data.get() for j, data in enumerate(data_box)}
+    try:
+        with open(qerp['selectfile'], 'w', encoding='utf-8') as f:
+            json.dump(saveSelects, f, ensure_ascii=False, indent=4)
+    except IOError as e:
+        messagebox.showerror("错误", f"保存选择失败: {str(e)}")
 
 def find_tests_name(sheet):
     """找到测试项目名称和起始位置"""
@@ -212,7 +241,7 @@ class ExcelRp:
     def __init__(self):
         self.file_path = None
         self.wb = None
-        self.open_file()
+        # self.open_file()
 
     def open_file(self):
         root = tk.Tk()
@@ -279,15 +308,6 @@ class ExcelRp:
             disp_save_select(data_box)
         except Exception as e:
             messagebox.showerror("错误", f"保存Excel文件失败: {str(e)}")
-
-def save_select(data_box):
-    """辅助函数，保存选择"""
-    saveSelects = {list(tests_name.keys())[j]: data.get() for j, data in enumerate(data_box)}
-    try:
-        with open('Select.json', 'w', encoding='utf-8') as f:
-            json.dump(saveSelects, f, ensure_ascii=False, indent=4)
-    except IOError as e:
-        messagebox.showerror("错误", f"保存选择失败: {str(e)}")
 
 def disp_save_select(data_box):
     """保存选择窗口"""
