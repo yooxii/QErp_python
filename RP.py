@@ -20,7 +20,7 @@ if qerp is None:
 report = qerp['Report']
 txt = qerp['TXT']
 
-def initialize_window(root):
+def initialize_window(root, WidthMain, HeightMain):
     """初始化窗口布局和变量"""
     for widget in root.winfo_children():
         if not isinstance(widget, tk.Menu):
@@ -32,7 +32,7 @@ def initialize_window(root):
     excelrp = ExcelRp()
     tests_name = excelrp.read_excel()
     
-    data_canvas = tk.Canvas(root, width=600, height=400)
+    data_canvas = tk.Canvas(root, width=WidthMain-20, height=HeightMain)
     data_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=data_canvas.yview)
@@ -57,7 +57,15 @@ def cfg_excel(root_main):
     """配置Excel窗口"""
     root = tk.Tk()
     root.title("配置Excel")
-    root.geometry("600x600")
+
+    WidthCfgExcel = 500
+    HeightCfgExcel = 300
+    
+    # 计算窗口左上角的位置
+    x = (WidthScreen / 2) - (WidthCfgExcel / 2)
+    y = (HeightScreen / 2) - (WidthCfgExcel / 2)
+    
+    root.geometry(f"{WidthCfgExcel}x{HeightCfgExcel}+{int(x)}+{int(y)}")
     
     input_box = create_report_inputbox(root)
     
@@ -76,9 +84,17 @@ def cfg_txt(txt_config):
     """配置TXT窗口"""
     root = tk.Tk()
     root.title("配置TXT")
-    root.geometry("500x600")
     
-    txtcfg_canvas = tk.Canvas(root, width=300, height=500)
+    WidthCfgTxt = 500
+    HeightCfgTxt = 500
+    
+    # 计算窗口左上角的位置
+    x = (WidthScreen / 2) - (WidthCfgTxt / 2)
+    y = (HeightScreen / 2) - (WidthCfgTxt / 2)
+    
+    root.geometry(f"{WidthCfgTxt}x{HeightCfgTxt}+{int(x)}+{int(y)}")
+    
+    txtcfg_canvas = tk.Canvas(root, width=WidthCfgTxt-20, height=HeightCfgTxt-20)
     txtcfg_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=txtcfg_canvas.yview)
@@ -191,13 +207,26 @@ def show_datas():
     """显示数据窗口"""
     root = tk.Tk()
     root.title("QErp")
-    root.geometry("800x600")
+
+    global HeightScreen, WidthScreen
+
+    WidthScreen = root.winfo_screenwidth()
+    HeightScreen = root.winfo_screenheight()
+
+    WidthMain = 600
+    HeightMain = 600
+    
+    # 计算窗口左上角的位置
+    x = (WidthScreen / 2) - (WidthMain / 2)
+    y = (HeightScreen / 2) - (HeightMain / 2)
+    
+    root.geometry(f"{WidthMain}x{HeightMain}+{int(x)}+{int(y)}")
     
     menubar = tk.Menu(root)
 
     file_menu = tk.Menu(menubar, tearoff=0)
     file_menu.add_command(label="选择文件夹", command=lambda: load_rootpath())
-    file_menu.add_command(label="打开报告", command=lambda: initialize_window(root))
+    file_menu.add_command(label="打开报告", command=lambda: initialize_window(root, WidthMain, HeightMain))
     file_menu.add_command(label="报告另存为", command=lambda: excelrp.save_excel(data_box, txt_seqs))
     menubar.add_cascade(label="报告", menu=file_menu)
     
@@ -292,7 +321,6 @@ class ExcelRp:
     def __init__(self):
         self.file_path = None
         self.wb = None
-        # self.open_file()
 
     def open_file(self):
         root = tk.Tk()
@@ -351,8 +379,9 @@ class ExcelRp:
                         # 未找到匹配的选择项，使用第一个值
                         Cvalue = value[list(value.keys())[0]][0]
                     # 保留三位小数
-                    self.wb[report['sheet_name']].cell(row=row, column=col).number_format = '0.000'
-                    self.wb[report['sheet_name']].cell(row=row, column=col).value = float(Cvalue)
+                    Cell = self.wb[report['sheet_name']].cell(row=row, column=col)
+                    Cell.number_format = '0.000'
+                    Cell.value = float(Cvalue)
 
         try:
             self.wb.save(f"{save_file.replace('.xlsx', '')}.xlsx")
@@ -364,13 +393,26 @@ def disp_save_select(data_box):
     """保存选择窗口"""
     root = tk.Tk()
     root.title("保存选择")
-    root.geometry("300x100")
-    
-    tk.Label(root, text="是否保存选择？").pack(pady=20)
 
-    tk.Button(root, text="是", command=lambda: (save_select(data_box), root.destroy())).pack(side=tk.LEFT, padx=20)
-    tk.Button(root, text="否", command=root.destroy).pack(side=tk.LEFT, padx=20)
+    WidthScreen = root.winfo_screenwidth()
+    HeightScreen = root.winfo_screenheight()
+
+    WidthSaveselect = 250
+    HeightSaveselect = 150
     
+    # 计算窗口左上角的位置
+    x = (WidthScreen / 2) - (WidthSaveselect / 2)
+    y = (HeightScreen / 2) - (HeightSaveselect / 2)
+    
+    root.geometry(f"{WidthSaveselect}x{HeightSaveselect}+{int(x)}+{int(y)}")
+
+    save_frame = tk.Frame(root)
+    save_frame.pack(pady=20)
+    
+    tk.Label(save_frame, text="是否覆盖之前保存的选择文件？").pack(pady=20)
+
+    tk.Button(save_frame, text="是", command=lambda: (save_select(data_box), root.destroy())).pack(side=tk.LEFT, padx=50)
+    tk.Button(save_frame, text="否", command=root.destroy).pack(side=tk.LEFT, padx=50)
     root.mainloop()
 
 if __name__ == '__main__':
