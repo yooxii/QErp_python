@@ -4,7 +4,7 @@ from tkinter import filedialog, ttk, messagebox
 import json
 import DealTxt as dt
 
-# 加载配置文件
+# 加载所有配置文件
 def load_config():
     try:
         with open('QErp.json', 'r', encoding='utf-8') as f:
@@ -35,7 +35,7 @@ def initialize_window(root):
     data_canvas = tk.Canvas(root, width=600, height=400)
     data_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-    scrollbar = tk.Scrollbar(data_canvas, orient=tk.VERTICAL, command=data_canvas.yview)
+    scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=data_canvas.yview)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     data_canvas.configure(yscrollcommand=scrollbar.set)
@@ -59,7 +59,7 @@ def cfg_excel(root_main):
     root.title("配置Excel")
     root.geometry("600x600")
     
-    input_box = create_input_box(root, report)
+    input_box = create_report_inputbox(root)
     
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=20)
@@ -76,14 +76,29 @@ def cfg_txt(txt_config):
     """配置TXT窗口"""
     root = tk.Tk()
     root.title("配置TXT")
-    root.geometry("600x600")
+    root.geometry("500x600")
     
-    input_box = create_input_box(root, txt)
+    txtcfg_canvas = tk.Canvas(root, width=300, height=500)
+    txtcfg_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL, command=txtcfg_canvas.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    txtcfg_canvas.configure(yscrollcommand=scrollbar.set)
+    txtcfg_canvas.bind("<Configure>", lambda e: txtcfg_canvas.configure(scrollregion=txtcfg_canvas.bbox("all")))
+
+    data_frame = tk.Frame(txtcfg_canvas)
+    txtcfg_canvas.create_window((0, 0), window=data_frame, anchor="nw")
+
+    input_frame = tk.Frame(data_frame)
+    input_frame.grid(row=0, column=0, padx=10, pady=10)
+
+    input_box = create_txt_inputbox(input_frame)
     
-    btn_frame = tk.Frame(root)
-    btn_frame.pack(pady=20)
-    
-    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_reportcfg(input_box), root.destroy()))
+    btn_frame = tk.Frame(data_frame)
+    btn_frame.grid(row=1, column=0, padx=10, pady=10)
+
+    btn_save = tk.Button(btn_frame, text="应用", command=lambda: (save_txtcfg(input_box), root.destroy()))
     btn_save.pack(side=tk.LEFT, padx=10)
 
     btn_exit = tk.Button(btn_frame, text="返回", command=root.destroy)
@@ -91,7 +106,7 @@ def cfg_txt(txt_config):
 
     root.mainloop()
 
-def create_input_box(root, report):
+def create_report_inputbox(root):
     """创建输入框"""
     input_box = []
     input_frame = tk.Frame(root)
@@ -106,11 +121,47 @@ def create_input_box(root, report):
     
     return input_box
 
+def create_txt_inputbox(root):
+    """创建输入框"""
+    input_box = []
+    input_frame = tk.Frame(root)
+    input_frame.pack(pady=2)
+    
+    i=0
+    for key, value in txt.items():
+        tk.Label(input_frame, text=f"{key}:").grid(row=i, column=0, padx=10, pady=10)
+        # 如果value是字符串直接输出
+        if isinstance(value, str):
+            input_excel = tk.Entry(input_frame, width=40, justify='center')
+            input_excel.insert(0, value)
+        # 否则用json.dumps输出
+        else:
+            heigh = len(value)+2 if isinstance(value, list) else 10
+            input_excel = tk.Text(input_frame, width=40, height=heigh, wrap='word')
+            input_excel.insert(tk.INSERT, json.dumps(value, ensure_ascii=False, indent=4))
+        input_excel.grid(row=i, column=1, padx=10, pady=10)
+        input_box.append(input_excel)
+        i+=1
+    
+    return input_box
+
 def save_reportcfg(input_box):
-    """保存配置"""
+    """保存报告配置"""
     for i, input_excel in enumerate(input_box):
         report[list(report.keys())[i]] = input_excel.get()
     qerp['Report'] = report
+    savecfg()
+
+def save_txtcfg(input_box):
+    """保存数据文件配置"""
+    for i, input_txt in enumerate(input_box):
+        # 如果input_txt是ENTRY，则直接获取值
+        if isinstance(txt[list(txt.keys())[i]], str):
+            txt[list(txt.keys())[i]] = input_txt.get()
+        # 否则用json.loads解析
+        else:
+            txt[list(txt.keys())[i]] = json.loads(input_txt.get(1.0, tk.END))
+    qerp['TXT'] = txt
     savecfg()
 
 def savecfg():
