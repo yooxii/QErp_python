@@ -283,11 +283,35 @@ def load_selects(select_box, selectFile_path):
     except json.JSONDecodeError as e:
         messagebox.showerror("错误", f"加载选择时出错: {str(e)}")
 
+def save_select_path():
+    """保存选择路径"""
+    # 打开路径选择框
+    selectFile_path = filedialog.asksaveasfilename(
+        title="保存选择文件",
+        initialdir=qerp['initialdir'],
+        filetypes=[("保存的选择文件", "*.json")]
+    )
+    qerp['selectfile'] = selectFile_path
+    savecfg() # 保存选择文件路径
+    return selectFile_path
+
 def save_select(data_box):
     """保存选择"""
+
+    if data_box is None:
+        messagebox.showwarning("警告", "请先加载数据！")
+        return
+
     saveSelects = {list(tests_name.keys())[j]: data.get() for j, data in enumerate(data_box)}
+
+    saveSelectPath = qerp['selectfile']
+    if not saveSelectPath:
+        saveSelectPath = save_select_path()
+
+    if not saveSelectPath:
+        return
     try:
-        with open(qerp['selectfile'], 'w', encoding='utf-8') as f:
+        with open(saveSelectPath, 'w', encoding='utf-8') as f:
             json.dump(saveSelects, f, ensure_ascii=False, indent=4)
     except IOError as e:
         messagebox.showerror("错误", f"保存选择失败: {str(e)}")
