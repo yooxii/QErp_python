@@ -2,8 +2,8 @@
     "name": "QErp",
     "version": "1.0.0",
     "description": "QE report system",
-    "initialdir": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ014-7LAG/20240823",
-    "selectfile": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ014-7LAG/20240823/Select.json",
+    "initialdir": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ008-7LCG/240809",
+    "selectfile": "",
     "TXT": {
         "info_start": "Information",
         "seq_start": "SEQ.",
@@ -27,6 +27,26 @@
             ],
             "效率": [
                 "Reading",
+                3
+            ],
+            "5v 4.75": [
+                "Vdc Read",
+                0
+            ],
+            "5vs 4.75": [
+                "Vdc Read",
+                4
+            ],
+            "3.3v 3.135": [
+                "Vdc Read",
+                1
+            ],
+            "12v 11.4": [
+                "Vdc Read",
+                5
+            ],
+            "-12v 10.8": [
+                "Vdc Read",
                 3
             ],
             "12v/": [
