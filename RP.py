@@ -15,6 +15,7 @@ def load_config():
 
 qerp = load_config()
 if qerp is None:
+    messagebox.showerror("错误", "加载配置文件失败，请检查配置文件是否存在或格式是否正确")
     exit(1)
 
 report = qerp['Report']
@@ -61,11 +62,7 @@ def cfg_excel(root_main):
     WidthCfgExcel = 500
     HeightCfgExcel = 300
     
-    # 计算窗口左上角的位置
-    x = (WidthScreen / 2) - (WidthCfgExcel / 2)
-    y = (HeightScreen / 2) - (WidthCfgExcel / 2)
-    
-    root.geometry(f"{WidthCfgExcel}x{HeightCfgExcel}+{int(x)}+{int(y)}")
+    root.geometry(f"{WidthCfgExcel}x{HeightCfgExcel}+{int((WidthScreen-WidthCfgExcel)/2)}+{int((HeightScreen-HeightCfgExcel)/2)}")
     
     input_box = create_report_inputbox(root)
     
@@ -216,11 +213,7 @@ def show_datas():
     WidthMain = 600
     HeightMain = 600
     
-    # 计算窗口左上角的位置
-    x = (WidthScreen / 2) - (WidthMain / 2)
-    y = (HeightScreen / 2) - (HeightMain / 2)
-    
-    root.geometry(f"{WidthMain}x{HeightMain}+{int(x)}+{int(y)}")
+    root.geometry(f"{WidthMain}x{HeightMain}+{int((WidthScreen-WidthMain)/2)}+{int((HeightScreen-HeightMain)/2)}")
     
     menubar = tk.Menu(root)
 
@@ -234,7 +227,7 @@ def show_datas():
     data_menu.add_command(label="打开数据文件", command=lambda: load_tests(data_box))
     data_menu.add_command(label="打开选择文件", command=lambda: load_select_path())
     data_menu.add_command(label="加载选择", command=lambda: load_selects(data_box, qerp['selectfile']))
-    data_menu.add_command(label="保存选择", command=lambda: save_select(data_box))
+    data_menu.add_command(label="保存选择", command=lambda: disp_save_select(data_box))
     menubar.add_cascade(label="数据处理", menu=data_menu)
 
     setting_menu = tk.Menu(menubar, tearoff=0)
@@ -424,19 +417,15 @@ def disp_save_select(data_box):
     WidthSaveselect = 250
     HeightSaveselect = 150
     
-    # 计算窗口左上角的位置
-    x = (WidthScreen / 2) - (WidthSaveselect / 2)
-    y = (HeightScreen / 2) - (HeightSaveselect / 2)
-    
-    root.geometry(f"{WidthSaveselect}x{HeightSaveselect}+{int(x)}+{int(y)}")
+    root.geometry(f"{WidthSaveselect}x{HeightSaveselect}+{int((WidthScreen-WidthSaveselect)/2)}+{int((HeightScreen-HeightSaveselect)/2)}")
 
     save_frame = tk.Frame(root)
-    save_frame.pack(pady=20)
+    save_frame.pack(pady=10)
     
     tk.Label(save_frame, text="是否覆盖之前保存的选择文件？").pack(pady=20)
 
-    tk.Button(save_frame, text="是", command=lambda: (save_select(data_box), root.destroy())).pack(side=tk.LEFT, padx=50)
-    tk.Button(save_frame, text="否", command=root.destroy).pack(side=tk.LEFT, padx=50)
+    tk.Button(save_frame, text="是", width=5, command=lambda: (save_select(data_box), root.destroy())).pack(side=tk.LEFT, padx=30)
+    tk.Button(save_frame, text="否", width=5, command=root.destroy).pack(side=tk.LEFT, padx=30)
     root.mainloop()
 
 if __name__ == '__main__':
