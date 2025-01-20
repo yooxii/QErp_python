@@ -23,10 +23,14 @@
     },
     "Select": {
         "100v/60hz Iin<13A": [
-            "8: Input/Output Test (100V/60HZ Iin<13A) "
+            "8: Input/Output Test (100V/60HZ Iin<13A) ",
+            "Reading",
+            0
         ],
         "240v/60hz Iin<10A": [
-            "9: Input/Output Test (240V/60HZ Iin<10A) "
+            "9: Input/Output Test (240V/60HZ Iin<10A) ",
+            "Reading",
+            0
         ],
         "240VDC Iin<10A": [
             "NA"
@@ -35,34 +39,54 @@
             "NA"
         ],
         "10% load 效率>85%": [
-            "4: Input/Output Test (10%) "
+            "4: Input/Output Test (10%) ",
+            "Reading",
+            3
         ],
         "20% load 效率>90.5%": [
-            "5: Input/Output Test (20%) "
+            "5: Input/Output Test (20%) ",
+            "Reading",
+            3
         ],
         "50% load 效率>93%": [
-            "6: Input/Output Test (50%) "
+            "6: Input/Output Test (50%) ",
+            "Reading",
+            3
         ],
         "100% load 效率>90%": [
-            "7: Input/Output Test (100%) "
+            "7: Input/Output Test (100%) ",
+            "Reading",
+            3
         ],
         "12v/166.7A 11.4~12.6V": [
-            "33: Static Test (12V/166.7A) "
+            "33: Static Test (12V/166.7A) ",
+            "Vdc Read",
+            0
         ],
         "12vs/3A 11.4~12.6V": [
-            "33: Static Test (12V/166.7A) "
+            "33: Static Test (12V/166.7A) ",
+            "Vdc Read",
+            5
         ],
         "12v/0A 11.4~12.6V": [
-            "34: Static Test (12V/0A) "
+            "34: Static Test (12V/0A) ",
+            "Vdc Read",
+            0
         ],
         "12vs/0A 11.4~12.6V": [
-            "34: Static Test (12V/0A) "
+            "34: Static Test (12V/0A) ",
+            "Vdc Read",
+            4
         ],
         "12v Ripple/noise<0.12V": [
-            "33: Static Test (12V/166.7A) "
+            "33: Static Test (12V/166.7A) ",
+            "Vpp Read",
+            0
         ],
         "12vs Ripple/noise<0.12V": [
-            "33: Static Test (12V/166.7A) "
+            "33: Static Test (12V/166.7A) ",
+            "Vpp Read",
+            4
         ],
         "184A/12V 0~3V": [
             "NA"
