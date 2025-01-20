@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "QE report system",
     "initialdir": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ008-7LCG/240809",
-    "selectfile": "",
+    "selectfile": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ008-7LCG/240809/Select-fsj008.json",
     "TXT": {
         "info_start": "Information",
         "seq_start": "SEQ.",

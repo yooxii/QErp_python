@@ -1,25 +1,32 @@
 import openpyxl as xl
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
+import sys
 import json
 import DealTxt as dt
 
 # 加载所有配置文件
 def load_config():
+    """加载配置文件"""
+    root = tk.Tk()
+    root.withdraw()
+
     try:
-        with open('QErp.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
+        global cfgPath, qerp, report, txt
+        # 打开文件选择框
+        cfgPath = filedialog.askopenfilename(title='选择配置文件', filetypes=[('JSON', '*.json')])
+
+        with open(cfgPath, 'r', encoding='utf-8') as f:
+            qerp = json.load(f)
+
+        # 读取配置
+        report = qerp['Report']
+        txt = qerp['TXT']
+
     except (FileNotFoundError, json.JSONDecodeError) as e:
         messagebox.showerror("错误", f"加载配置文件失败: {str(e)}")
-        return None
-
-qerp = load_config()
-if qerp is None:
-    messagebox.showerror("错误", "加载配置文件失败，请检查配置文件是否存在或格式是否正确")
-    exit(1)
-
-report = qerp['Report']
-txt = qerp['TXT']
+        sys.exit()
+    root.destroy()
 
 def initialize_window(root, WidthMain, HeightMain):
     """初始化窗口布局和变量"""
@@ -177,9 +184,44 @@ def save_txtcfg(input_box):
     qerp['TXT'] = txt
     savecfg()
 
+def export_cfg():
+    """导出配置"""
+    # 选择导出路径
+    exportPath = filedialog.asksaveasfilename(
+        title="导出配置文件",
+        initialdir=qerp['initialdir'],
+        filetypes=[('JSON', '*.json')]
+    )
+    if not exportPath:
+        return
+    try:
+        with open(f"{exportPath}.bak", 'w', encoding='utf-8') as f:
+            json.dump(qerp, f, ensure_ascii=False, indent=4)
+        messagebox.showinfo("提示", "导出成功！")
+    except IOError as e:
+        messagebox.showerror("错误", f"导出配置文件失败: {str(e)}")
+
+def import_cfg():
+    """导入配置"""
+    # 选择导入路径
+    importPath = filedialog.askopenfilename(
+        title="导入配置文件",
+        initialdir=qerp['initialdir'],
+        filetypes=[('JSON', '*.json')]
+    )
+    if not importPath:
+        return
+    try:
+        with open(importPath, 'r', encoding='utf-8') as f:
+            qerp_import = json.load(f)
+        qerp.update(qerp_import)
+        messagebox.showinfo("提示", "导入成功！")
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        messagebox.showerror("错误", f"导入配置文件失败: {str(e)}")
+
 def savecfg():
     try:
-        with open('QErp.json', 'w', encoding='utf-8') as f:
+        with open(cfgPath, 'w', encoding='utf-8') as f:
             json.dump(qerp, f, ensure_ascii=False, indent=4)
     except IOError as e:
         messagebox.showerror("错误", f"保存配置文件失败: {str(e)}")
@@ -201,7 +243,7 @@ def load_tests(select_box):
         messagebox.showerror("错误", f"加载选择时出错: {str(e)}")
 
 def show_datas():
-    """显示数据窗口"""
+    """显示数据窗口"""    
     root = tk.Tk()
     root.title("QErp")
 
@@ -225,14 +267,15 @@ def show_datas():
     
     data_menu = tk.Menu(menubar, tearoff=0)
     data_menu.add_command(label="打开数据文件", command=lambda: load_tests(data_box))
-    data_menu.add_command(label="打开选择文件", command=lambda: load_select_path())
-    data_menu.add_command(label="加载选择", command=lambda: load_selects(data_box, qerp['selectfile']))
-    data_menu.add_command(label="保存选择", command=lambda: disp_save_select(data_box))
+    data_menu.add_command(label="加载选择", command=lambda: load_selects(data_box))
+    data_menu.add_command(label="保存选择", command=lambda: save_select(data_box))
     menubar.add_cascade(label="数据处理", menu=data_menu)
 
     setting_menu = tk.Menu(menubar, tearoff=0)
     setting_menu.add_command(label="配置Report", command=lambda: cfg_excel(root))
     setting_menu.add_command(label="配置TXT", command=lambda: cfg_txt(txt))
+    setting_menu.add_command(label="导出配置", command=lambda: export_cfg())
+    setting_menu.add_command(label="导入配置", command=lambda: import_cfg())
     menubar.add_cascade(label="设置", menu=setting_menu)
 
     menubar.add_command(label="退出", command=root.quit)
@@ -251,42 +294,13 @@ def load_rootpath():
     qerp['initialdir'] = rootpath
     return rootpath
 
-def load_select_path():
-    """加载选择"""
-    # 打开路径选择框
-    selectFile_path = filedialog.askopenfilename(
-        title="选择选择文件",
-        initialdir=qerp['initialdir'],
-        filetypes=[("保存的选择文件", "*.json")]
-    )
-    qerp['selectfile'] = selectFile_path
-    savecfg() # 保存选择文件路径
-    return selectFile_path
-
-def load_selects(select_box, selectFile_path):
-    if not selectFile_path:
-        selectFile_path = load_select_path()
-    try:
-        with open(selectFile_path, 'r', encoding='utf-8') as f:
-            save_selects = json.load(f)
-        for i, select_key in enumerate(save_selects.keys()):
-            select_box[i].set(save_selects[select_key])
-    except FileNotFoundError:
-        messagebox.showwarning("警告", "选择文件不存在，无法加载选择。")
-    except json.JSONDecodeError as e:
-        messagebox.showerror("错误", f"加载选择时出错: {str(e)}")
-
-def save_select_path():
-    """保存选择路径"""
-    # 打开路径选择框
-    selectFile_path = filedialog.asksaveasfilename(
-        title="保存选择文件",
-        initialdir=qerp['initialdir'],
-        filetypes=[("保存的选择文件", "*.json")]
-    )
-    qerp['selectfile'] = selectFile_path
-    savecfg() # 保存选择文件路径
-    return selectFile_path
+def load_selects(select_box):
+    # 选取txt['select']的每一个元素的第一个，如果是字符串，则设置select_box的对应位置的值
+    for i, select_key in enumerate(txt['select']):
+        if isinstance(txt['select'][select_key], str):
+            select_box[i].set(txt['select'][select_key])
+        else:
+            select_box[i].set(txt['select'][select_key][0])
 
 def save_select(data_box):
     """保存选择"""
@@ -297,17 +311,12 @@ def save_select(data_box):
 
     saveSelects = {list(tests_name.keys())[j]: data.get() for j, data in enumerate(data_box)}
 
-    saveSelectPath = qerp['selectfile']
-    if not saveSelectPath:
-        saveSelectPath = save_select_path()
-
-    if not saveSelectPath:
-        return
-    try:
-        with open(saveSelectPath, 'w', encoding='utf-8') as f:
-            json.dump(saveSelects, f, ensure_ascii=False, indent=4)
-    except IOError as e:
-        messagebox.showerror("错误", f"保存选择失败: {str(e)}")
+    for select_key, select_val in saveSelects.items():
+        try:
+            txt['select'][select_key][0] = select_val
+        except TypeError:
+            txt['select'][select_key] = [select_val]
+    savecfg()
 
 def find_tests_name(sheet):
     """找到测试项目名称和起始位置"""
@@ -422,11 +431,12 @@ def disp_save_select(data_box):
     save_frame = tk.Frame(root)
     save_frame.pack(pady=10)
     
-    tk.Label(save_frame, text="是否覆盖之前保存的选择文件？").pack(pady=20)
+    tk.Label(save_frame, text="是否需要覆盖之前的选择？").pack(pady=20)
 
     tk.Button(save_frame, text="是", width=5, command=lambda: (save_select(data_box), root.destroy())).pack(side=tk.LEFT, padx=30)
     tk.Button(save_frame, text="否", width=5, command=root.destroy).pack(side=tk.LEFT, padx=30)
     root.mainloop()
 
 if __name__ == '__main__':
+    load_config()
     show_datas()

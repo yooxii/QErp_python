@@ -60,8 +60,10 @@ def deal_data1(datas: List[str]):
         except IndexError:
             seqs[seqName.replace(TXT_FLAGS['pass'], '')].append([TXT_FLAGS['read_end']])
             res.append(seqs)
-            break
+            return res
         i += 1
+    if len(seqs) != 0:
+        res.append(seqs)
     return res
 
 def deal_data2(datas: List):
