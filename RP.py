@@ -332,7 +332,7 @@ def load_tests(select_box):
     """加载数据"""
     global txt_seqs
     try:
-        txt_seqs = dt.deal_data2(dt.deal_data1(dt.open_file()))
+        txt_seqs = dt.deal_data(qerp)
         if not txt_seqs or not txt_seqs[0]:
             raise ValueError("未找到有效的数据值")
 
