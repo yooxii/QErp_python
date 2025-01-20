@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>650</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>650</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_rp">
+    <property name="title">
+     <string>报告</string>
+    </property>
+    <addaction name="action_openfolder"/>
+    <addaction name="action_openreport"/>
+   </widget>
+   <widget class="QMenu" name="menu_data">
+    <property name="title">
+     <string>数据</string>
+    </property>
+    <addaction name="action_opendatafile"/>
+    <addaction name="action_loadselect"/>
+   </widget>
+   <widget class="QMenu" name="menu_setting">
+    <property name="title">
+     <string>设置</string>
+    </property>
+    <addaction name="action_set_execl"/>
+    <addaction name="action_set_txt"/>
+    <addaction name="action_set_select"/>
+    <addaction name="action_sets_import"/>
+    <addaction name="action_sets_export"/>
+   </widget>
+   <widget class="QMenu" name="menu_save">
+    <property name="title">
+     <string>保存</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_quit">
+    <property name="title">
+     <string>退出</string>
+    </property>
+   </widget>
+   <addaction name="menu_rp"/>
+   <addaction name="menu_data"/>
+   <addaction name="menu_setting"/>
+   <addaction name="menu_save"/>
+   <addaction name="menu_quit"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_openfolder">
+   <property name="text">
+    <string>选择基文件夹</string>
+   </property>
+  </action>
+  <action name="action_openreport">
+   <property name="text">
+    <string>打开报告</string>
+   </property>
+  </action>
+  <action name="action1">
+   <property name="text">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="action_opendatafile">
+   <property name="text">
+    <string>打开数据文件</string>
+   </property>
+  </action>
+  <action name="action_loadselect">
+   <property name="text">
+    <string>加载选择</string>
+   </property>
+  </action>
+  <action name="action3">
+   <property name="text">
+    <string>3</string>
+   </property>
+  </action>
+  <action name="action_set_execl">
+   <property name="text">
+    <string>配置execl</string>
+   </property>
+  </action>
+  <action name="action_set_txt">
+   <property name="text">
+    <string>配置txt</string>
+   </property>
+  </action>
+  <action name="action_set_select">
+   <property name="text">
+    <string>配置select</string>
+   </property>
+  </action>
+  <action name="action_sets_import">
+   <property name="text">
+    <string>导入配置</string>
+   </property>
+  </action>
+  <action name="action_sets_export">
+   <property name="text">
+    <string>导出配置</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
