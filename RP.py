@@ -9,7 +9,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.action_openfolder.triggered.connect(self.open_folder)
 
-        self.menu_quit.triggered.connect(self.close)
+        self.action_quitapp.triggered.connect(self.close)
 
     def open_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Open Folder", os.path.expanduser("~"))
