@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>650</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_rp">
@@ -42,6 +42,7 @@
     </property>
     <addaction name="action_opendatafile"/>
     <addaction name="action_loadselect"/>
+    <addaction name="action_saveselect"/>
    </widget>
    <widget class="QMenu" name="menu_setting">
     <property name="title">
@@ -50,6 +51,7 @@
     <addaction name="action_set_execl"/>
     <addaction name="action_set_txt"/>
     <addaction name="action_set_select"/>
+    <addaction name="separator"/>
     <addaction name="action_sets_import"/>
     <addaction name="action_sets_export"/>
    </widget>
@@ -57,8 +59,12 @@
     <property name="title">
      <string>保存</string>
     </property>
+    <addaction name="action_savereport"/>
    </widget>
    <widget class="QMenu" name="menu_quit">
+    <property name="tearOffEnabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>退出</string>
     </property>
@@ -69,60 +75,125 @@
    <addaction name="menu_save"/>
    <addaction name="menu_quit"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="action_openfolder">
+   <property name="icon">
+    <iconset theme="applications-office"/>
+   </property>
    <property name="text">
     <string>选择基文件夹</string>
+   </property>
+   <property name="toolTip">
+    <string>请选择报告和数据所在的文件夹</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
   <action name="action_openreport">
    <property name="text">
     <string>打开报告</string>
    </property>
-  </action>
-  <action name="action1">
-   <property name="text">
-    <string>1</string>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="action_opendatafile">
    <property name="text">
     <string>打开数据文件</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="action_loadselect">
    <property name="text">
     <string>加载选择</string>
    </property>
-  </action>
-  <action name="action3">
-   <property name="text">
-    <string>3</string>
+   <property name="toolTip">
+    <string>加载之前保存的选择</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="action_set_execl">
    <property name="text">
     <string>配置execl</string>
    </property>
+   <property name="toolTip">
+    <string>execl相关的设置</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+E</string>
+   </property>
   </action>
   <action name="action_set_txt">
    <property name="text">
     <string>配置txt</string>
+   </property>
+   <property name="toolTip">
+    <string>txt相关的设置</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+T</string>
    </property>
   </action>
   <action name="action_set_select">
    <property name="text">
     <string>配置select</string>
    </property>
+   <property name="toolTip">
+    <string>select相关的设置</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
   </action>
   <action name="action_sets_import">
    <property name="text">
     <string>导入配置</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+I</string>
+   </property>
   </action>
   <action name="action_sets_export">
    <property name="text">
     <string>导出配置</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+O</string>
+   </property>
+  </action>
+  <action name="action_saveselect">
+   <property name="text">
+    <string>另存选择</string>
+   </property>
+   <property name="toolTip">
+    <string>另存选择为其他名称</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+S</string>
+   </property>
+  </action>
+  <action name="action_quitapp">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>退出</string>
+   </property>
+   <property name="toolTip">
+    <string>退出程序</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="action_savereport">
+   <property name="text">
+    <string>保存报告</string>
    </property>
   </action>
  </widget>
