@@ -1,0 +1,100 @@
+{
+    "name": "QErp",
+    "version": "1.0.0",
+    "description": "QE report system",
+    "initialdir": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ008-7LCG/240809",
+    "selectfile": "D:/Desktop/曙光出貨報告資料(勿刪)/FSJ008-7LCG/240809/Select-fsj008.json",
+    "TXT": {
+        "info_start": "Information",
+        "seq_start": "SEQ.",
+        "seq_end": "----------------",
+        "pass": "---------- PASS",
+        "read": [
+            "Reading",
+            "Vdc Read",
+            "Vpp Read"
+        ],
+        "noread": [
+            "Pdc Reading",
+            "Reading/",
+            "Td Reading"
+        ],
+        "read_end": "+++"
+    },
+    "Select": {
+        "115v/60hz Iin<6A": [
+            "4: Input/Output Test (115V 6A) ",
+            "Reading",
+            0
+        ],
+        "230v/60hz Iin<3A": [
+            "16: Input/Output Test (>85%EFF@230V/100%L) ",
+            "Reading",
+            0
+        ],
+        "20% load 效率>86%": [
+            "14: Input/Output Test (>85%EFF@230V20%L) ",
+            "Reading",
+            3
+        ],
+        "5v 4.75~5.25V": [
+            "4: Input/Output Test (115V 6A) ",
+            "Vdc Read",
+            0
+        ],
+        "3.3v 3.135~3.465V": [
+            "4: Input/Output Test (115V 6A) ",
+            "Vdc Read",
+            1
+        ],
+        "12v 11.4~12.6V": [
+            "4: Input/Output Test (115V 6A) ",
+            "Vdc Read",
+            5
+        ],
+        "5vs 4.75~5.25V": [
+            "4: Input/Output Test (115V 6A) ",
+            "Vdc Read",
+            4
+        ],
+        "-12v 10.8~13.2V": [
+            "4: Input/Output Test (115V 6A) ",
+            "Vdc Read",
+            3
+        ],
+        "5v Ripple/noise<0.05V": [
+            "8: Dynamic Test (12VMAX) ",
+            "Vpp Read",
+            0
+        ],
+        "3.3v Ripple/noise<0.05V": [
+            "8: Dynamic Test (12VMAX) ",
+            "Vpp Read",
+            1
+        ],
+        "12v Ripple/noise<0.12V": [
+            "8: Dynamic Test (12VMAX) ",
+            "Vpp Read",
+            5
+        ],
+        "5vs Ripple/noise<0.05V": [
+            "8: Dynamic Test (12VMAX) ",
+            "Vpp Read",
+            4
+        ],
+        "-12v Ripple/noise<0.12V": [
+            "8: Dynamic Test (12VMAX) ",
+            "Vpp Read",
+            3
+        ],
+        "5V 20~48A": [
+            "NA"
+        ]
+    },
+    "Report": {
+        "sheet_name": "出货报告附档",
+        "flag_data_start_row": "电源性能参数（区分high、low line）",
+        "flag_data_start_col": "检验类型",
+        "flag_data_end_col": "检验结果"
+    }
+}
