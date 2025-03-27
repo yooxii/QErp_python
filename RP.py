@@ -37,8 +37,8 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(RPMainWindow, self).__init__(parent)
         self.setupUi(self)
-        self.action_openfolder.triggered.connect(self.open_folder)
         self.action_openreport.triggered.connect(self.open_report)
+        self.action_opendatafile.triggered.connect(self.open_data_file)
         self.action_quitapp.triggered.connect(self.close)
         
         if not self.centralwidget.layout():
@@ -56,15 +56,13 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
                 self.qerp = json.load(f)
                 # inspect(self.qerp)
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            QMessageBox.Warning("错误", f"加载配置文件失败: {str(e)}")
-            self.close()
-
-    def open_folder(self):
-        self.folder_path = QFileDialog.getExistingDirectory(self, u"选择根目录", os.path.expanduser("~"))
+            QMessageBox.warning(self, "错误", "配置文件加载失败：\n" + str(e))
+            sys.exit(1)
 
     def open_report(self):
-        self.report_path = QFileDialog.getOpenFileName(self,"打开报告",self.folder_path)[0]
+        self.report_path = QFileDialog.getOpenFileName(self,"打开报告",os.path.expanduser("~"), filter='Excel(*.xlsx *.xls)')[0]
         # inspect(self.report_path)
+        self.rootpath = os.path.dirname(self.report_path)
         self.wb = xl.load_workbook(self.report_path)
         self.show_tests()
         
@@ -81,14 +79,36 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.testTitles_layout.setAlignment(Qt.AlignTop)
         self.testTitles_layout.setSizeConstraint(QLayout.SetFixedSize)
 
+        self.select_box = []
         for test_name, pos in res.items():
-            test_title = QLabel(test_name)
-            test_title.setAlignment(Qt.AlignCenter)
-            test_title.setStyleSheet(u"QLabel { font-size: 18px; }")
-            self.testTitles_layout.addWidget(test_title)
+            # 测试数据选择框
+            test_layout = QHBoxLayout()
+            test_title = QLabel(test_name+u"：")
+            test_title.setAlignment(Qt.AlignLeft)
+            test_title.setStyleSheet(u"QLabel { font-size: 16px; }")
+            test_title.setMinimumHeight(30)
+            test_layout.addWidget(test_title)
+            
+            test_select_data = QComboBox()
+            test_select_data.setStyleSheet(u"QComboBox { font-size: 12px; }")
+            test_select_data.setMinimumHeight(25)
+            test_select_data.setMinimumWidth(250)
+            test_layout.addWidget(test_select_data)
+            self.select_box.append(test_select_data)
+            
+            self.testTitles_layout.addLayout(test_layout)
 
         self.centralwidget.layout().insertLayout(0, self.testTitles_layout)
         
+    def open_data_file(self):
+        DT = dt.DealTxt()
+        self.test_datas = DT.deal_data(qerp=self.qerp)
+        inspect(self.test_datas)
+        
+        for index, test_name in enumerate(self.select_box):
+            test_select_data = self.select_box[index]
+            test_select_data.clear()
+            test_select_data.addItems(self.test_datas[0])
 
     def show_about(self):
         self.about_win = QWidget()

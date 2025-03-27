@@ -21,7 +21,10 @@ def load_config():
     return cfgPath, qerp
 
 class DealTxt:
-    def open_file(self, qerp):
+    def __init__(self):
+        pass
+    
+    def open_file(self):
         """
             打开文件并读取内容
             :return: 文件内容
@@ -120,7 +123,7 @@ class DealTxt:
         return res
 
     def deal_data(self, qerp):
-        datas = self.open_file(qerp)
+        datas = self.open_file()
         data1 = self.deal_data1(datas, qerp)
         data2 = self.deal_data2(data1, qerp)
         # data = show_data(data2)
