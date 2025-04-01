@@ -16,9 +16,9 @@ from PySide2.QtWidgets import *
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
-            MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(650, 600)
-        MainWindow.setMinimumSize(QSize(800, 600))
+            MainWindow.setObjectName(u"QErp")
+        MainWindow.resize(800, 600)
+        MainWindow.setMinimumSize(QSize(600, 400))
         self.action_openreport = QAction(MainWindow)
         self.action_openreport.setObjectName(u"action_openreport")
         self.action_opendatafile = QAction(MainWindow)
@@ -83,7 +83,7 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"QErp-曙光报告辅助工具", None))
         self.action_openreport.setText(QCoreApplication.translate("MainWindow", u"打开报告", None))
 #if QT_CONFIG(shortcut)
         self.action_openreport.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+R", None))

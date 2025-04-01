@@ -10,17 +10,17 @@ from RPMainWindow import Ui_MainWindow
 
 import DealTxt as dt
 
-def find_tests_name(sheet, report):
+def find_tests_name(sheet, rp_flag):
     """找到测试项目名称和起始位置"""
     res = {}
     start = None
     
     for col in sheet.columns:
         for cell in col:
-            if cell.value == report['flag_data_start_row']:
+            if cell.value == rp_flag['flag_data_start_row']:
                 r = cell.row
                 for c in range(cell.column, sheet.max_column + 1):
-                    if sheet.cell(row=r, column=c).value == report['flag_data_start_col']:
+                    if sheet.cell(row=r, column=c).value == rp_flag['flag_data_start_col']:
                         start = {'row': r, 'col': c}
                         break
                 if start: break
@@ -65,7 +65,6 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
                 # inspect(self.qerp)
         except (FileNotFoundError, json.JSONDecodeError) as e:
             QMessageBox.warning(self, "错误", "配置文件加载失败：\n" + str(e))
-            sys.exit(1)
 
     def load_selects(self):
         selects = self.qerp['Select']
