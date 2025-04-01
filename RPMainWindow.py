@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(650, 600)
-        MainWindow.setMinimumSize(QSize(600, 400))
+        MainWindow.setMinimumSize(QSize(800, 600))
         self.action_openreport = QAction(MainWindow)
         self.action_openreport.setObjectName(u"action_openreport")
         self.action_opendatafile = QAction(MainWindow)
