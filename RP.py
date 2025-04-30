@@ -14,21 +14,27 @@ def find_tests_name(sheet, rp_flag):
     """找到测试项目名称和起始位置"""
     res = {}
     start = None
+    table_start_col = 1
     
     for col in sheet.columns:
         for cell in col:
             if cell.value == rp_flag['flag_data_start_row']:
                 r = cell.row
+                table_start_col = cell.column
                 for c in range(cell.column, sheet.max_column + 1):
                     if sheet.cell(row=r, column=c).value == rp_flag['flag_data_start_col']:
                         start = {'row': r, 'col': c}
                         break
                 if start: break
-
+    
     if start:
         for row in range(start['row'] + 1, sheet.max_row + 1):
+            if str(rp_flag['flag_data_end_row']) in str(sheet.cell(row=row,column=table_start_col).value):
+                break
             cellValue = sheet.cell(row=row, column=start['col']).value
             if cellValue is not None and sheet.cell(row=row, column=start['col'] + 1).value is None:
+                if cellValue in res:
+                    continue
                 res[cellValue] = {'row': row, 'col': start['col']}
 
     return res
@@ -38,8 +44,8 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         super(RPMainWindow, self).__init__(parent)
         self.setupUi(self)
         self.action_openreport.triggered.connect(self.open_report)
-        self.action_opendatafile.triggered.connect(self.open_data_file)
-        self.action_loadselect.triggered.connect(self.load_selects)
+        self.action_opendatatxt.triggered.connect(self.open_data_txt)
+        self.action_loadselect.triggered.connect(self.load_txtselects)
         self.action_savereport.triggered.connect(self.save_report)
         self.action_saveselects.triggered.connect(self.save_selects)
         self.action_sets_import.triggered.connect(self.import_sets)
@@ -48,6 +54,9 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         
         if not self.centralwidget.layout():
             self.centralwidget.setLayout(QVBoxLayout())
+        
+        self.title1 = u"QErp-曙光报告辅助工具" # 主标题
+        self.title2 = "" # 副标题
         
         self.load_config()
         
@@ -60,13 +69,15 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
             if not self.cfgPath:
                 raise FileNotFoundError("未选择配置文件")
             inspect(self.cfgPath)
+            self.title2 = self.cfgPath.split("/")[-1].split(".")[0]
+            self.setWindowTitle(self.title1 + " : " + self.title2)
             with open(self.cfgPath, 'r', encoding='utf-8') as f:
                 self.qerp = json.load(f)
                 # inspect(self.qerp)
         except (FileNotFoundError, json.JSONDecodeError) as e:
             QMessageBox.warning(self, "错误", "配置文件加载失败：\n" + str(e))
 
-    def load_selects(self):
+    def load_txtselects(self):
         selects = self.qerp['Select']
         # 选取txt['select']的每一个元素的第一个，如果是字符串，则设置select_box的对应位置的值
         warnings = []
@@ -117,11 +128,15 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
                     data_col = int(tests_box[select_key][2].currentText())
                     if data_type == "NA" or data_col == "NA":
                         continue
-                    Cvalue = value[data_type][data_col]
+                    elif data_type == "Reading/+" or data_type == "Min":
+                        Cvalue = float(value["Reading/+"][data_col])+float(value["Min"][data_col])
+                    else:
+                        Cvalue = value[data_type][data_col]
                     # 保留三位小数
                     Cell = self.st.cell(row=row, column=col)
                     Cell.number_format = '0.000'
-                    Cell.value = float(Cvalue)
+                    tmp = float(Cvalue)
+                    Cell.value = tmp if tmp > 0 else -tmp # 取绝对值
 
         self.wb.save(save_path)
         QMessageBox.information(self, "成功", "保存成功")
@@ -154,6 +169,9 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.st = self.wb[self.report['sheet_name']]
         res = find_tests_name(self.st, self.report)
         self.test_cell = res
+        self.seltype = self.qerp["TXT"]["read"]
+        if "Min" in self.seltype:
+            self.seltype.remove("Min")
         
         inspect(res)
         
@@ -247,7 +265,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         
         return test_box
         
-    def open_data_file(self):
+    def open_data_txt(self):
         DT = dt.DealTxt()
         self.test_datas = DT.deal_data(qerp=self.qerp)
         test_data = self.test_datas[0]
@@ -262,7 +280,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
             test_select_type = test[1]
             test_select_type.clear()
             test_select_type.addItem("NA")
-            test_select_type.addItems(self.qerp["TXT"]["read"])
+            test_select_type.addItems(self.seltype)
             
             test_select_col = test[2]
             test_select_col.clear()
@@ -270,7 +288,10 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
             test_select_col.addItems("0123456789")
             
         if self.auto_load_select:
-            self.load_selects()
+            self.load_txtselects()
+
+    def open_data_excel(self):
+        pass # TODO
 
     def import_sets(self):
         self.load_config()
@@ -281,7 +302,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         save_path = QFileDialog.getSaveFileName(self,"保存配置文件",self.cfgPath, filter='配置文件(*json)')[0]
         if not save_path:
             return
-        with open(save_path, 'w', encoding='utf-8') as f:
+        with open(save_path+".json", 'w', encoding='utf-8') as f:
             json.dump(self.qerp, f, ensure_ascii=False, indent=4)
 
     def show_about(self):

@@ -13,6 +13,11 @@
     "noread": ["Pdc Reading", "Reading/", "Td Reading"],
     "read_end": "+++"
   },
+  "EXCEL": {
+    "is_datafile_flag": ["063_", "135_"],
+    "seq_flag": "****SEQ",
+    "seq_col": "D"
+  },
   "Select": {
     "100v/60hz Iin<13A": ["8: Input/Output Test (100V/60HZ Iin<13A) ", "Reading", "0"],
     "240v/60hz Iin<10A": ["9: Input/Output Test (240V/60HZ Iin<10A) ", "Reading", "0"],
@@ -37,6 +42,7 @@
   "Report": {
     "sheet_name": "出货报告附档",
     "flag_data_start_row": "电源性能参数（区分high、low line）",
+    "flag_data_end_row": "安规性能",
     "flag_data_start_col": "检验类型",
     "flag_data_end_col": "检验结果"
   }

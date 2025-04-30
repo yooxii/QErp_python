@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['RP.py', 'DealTxt.py'],
+    ['RP.py','RPMainWindow.py', 'DealTxt.py'],
     pathex=[],
     binaries=[],
     datas=[],
