@@ -5,6 +5,6 @@ __pycache__/
 build/
 dist/
 
-res.txt
+res*
 
 .vscode/

@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"QErp")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(1200, 700)
         MainWindow.setMinimumSize(QSize(600, 400))
         self.action_openreport = QAction(MainWindow)
         self.action_openreport.setObjectName(u"action_openreport")

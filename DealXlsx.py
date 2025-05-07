@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import json
+import rich
 import openpyxl as xl
 from PySide2.QtWidgets import QApplication, QFileDialog 
 
@@ -61,24 +62,42 @@ class DealXlsx:
         seq_flag = excel_cfg["seq_flag"]
         
         for row in range(1, st.max_row+1):
-            cell = st[f"{excel_cfg['seq_col']}{row}"].value
+            cell_cr = f"{excel_cfg['seq_col']}{row}"
+            cell = st[cell_cr].value
             if not isinstance(cell, str):
                 continue
             if seq_flag in cell:
-                print(cell)
-        # TODO
+                seq = cell.replace("*", "").strip()
+                seq_data = {}
+                for row2 in range(row+1, st.max_row+1):
+                    cell_cr2 = f"{excel_cfg['seq_col']}{row2}"
+                    cell2 = st[cell_cr2].value
+                    if not isinstance(cell, str):
+                        continue
+                    if seq_flag in cell2:
+                        row = row2-1
+                        break
+                    if cell2 in excel_cfg["end_flag"]:
+                        break
+                    seq_data[cell2] = st[f"{excel_cfg['data_col']}{row2}"].value
+                res[seq] = seq_data
 
         return res
     
     def deal_data_folder(self):
         data_files = self.filter_data_files()
+        res = {}
         for file in data_files:
-            self.deal_data_file(file)
+            res[file] = self.deal_data_file(file)
+        rich.inspect(res)
+        return res
     
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     _, qerp = load_config()
     dx = DealXlsx(qerp)
     # print(dx.filter_data_files())
-    dx.deal_data_folder()
-    
+    res = dx.deal_data_folder()
+    with open("res_excel.json", "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False, indent=4)
+    # sys.exit(app.exec_())
