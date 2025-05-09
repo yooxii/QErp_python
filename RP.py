@@ -62,6 +62,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.title2 = "" # 副标题
         self.rootpath = "" # 根路径
         self.select_box = {} # 保存了选择框的字典
+        self.Model = None # 机种型号
         
         if self.load_config():
             self.show_start_window()
@@ -74,18 +75,24 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
 
     def show_start_window(self):
         """显示开始界面，提示用户选择机种型号"""
-        self.start_window = QDialog(self)
+        self.start_window = QDialog()
         self.start_window.setWindowTitle(self.title1)
-        self.start_window.resize(400, 100)
+        self.start_window.resize(400, 300)
         self.start_window.setWindowModality(Qt.ApplicationModal)
+        self.start_window.setWindowIcon(QIcon(".\\logo\\acbel-1.jpg"))
 
         try:
             layout = QVBoxLayout()
             self.start_window.setLayout(layout)
 
-            layout.addWidget(QLabel("请选择机种型号："))
+            label = QLabel(text="请选择机种型号：")
+            label.setMaximumHeight(20)
+            label.setFont(QFont("Microsoft YaHei", 10))
+            layout.addWidget(label)
 
             combo = QComboBox(self.start_window)
+            combo.setMinimumHeight(30)
+            combo.setFont(QFont("Microsoft YaHei", 10))
             combo.addItems(self.qerp["Select"].keys())
             layout.addWidget(combo)
 
@@ -107,7 +114,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
             self.cfgPath = QFileDialog.getOpenFileName(self, '选择配置文件', filter='配置文件(*json)')[0]
             if not self.cfgPath:
                 raise FileNotFoundError("未选择配置文件")
-            inspect(self.cfgPath)
+            # inspect(self.cfgPath)
             with open(self.cfgPath, 'r', encoding='utf-8') as f:
                 self.qerp = json.load(f)
                 # inspect(self.qerp)
@@ -145,6 +152,8 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
 
     def open_report(self):
         """打开报告文件"""
+        if not self.Model:
+            self.show_start_window()
         self.report_path = QFileDialog.getOpenFileName(self,"打开报告",os.path.expanduser("~"), filter='Excel(*.xlsx *.xls)')[0]
         # inspect(self.report_path)
         self.rootpath = os.path.dirname(self.report_path)
@@ -241,7 +250,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         if "Min" in self.txt_seltype:
             self.txt_seltype.remove("Min")
         
-        inspect(res)
+        # inspect(res)
         
         # 清空窗口
         self.reset_window(self.centralwidget.layout())

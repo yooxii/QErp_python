@@ -107,7 +107,7 @@ class DealXlsx:
             for file in data_files:
                 tmp[file] = self.deal_data_file(file)
             res[key] = tmp
-        rich.inspect(res)
+        # rich.inspect(res)
         return res
     
 if __name__ == "__main__":

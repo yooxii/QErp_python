@@ -19,6 +19,7 @@ class Ui_MainWindow(object):
             MainWindow.setObjectName(u"QErp")
         MainWindow.resize(1200, 700)
         MainWindow.setMinimumSize(QSize(600, 400))
+        MainWindow.setWindowIcon(QIcon(".\\logo\\acbel-1.jpg"))
         self.action_openreport = QAction(MainWindow)
         self.action_openreport.setObjectName(u"action_openreport")
         self.action_opendatatxt = QAction(MainWindow)
