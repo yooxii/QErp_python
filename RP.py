@@ -237,7 +237,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.st = self.wb[self.report['sheet_name']]
         res = find_tests_name(self.st, self.report)
         self.test_cell = res
-        self.txt_seltype = self.qerp["TXT"]["read"]
+        self.txt_seltype = self.qerp["TXT"]["read"].copy()
         if "Min" in self.txt_seltype:
             self.txt_seltype.remove("Min")
         
@@ -408,7 +408,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         src_select = self.sender()
         src_text = self.sender().currentText()
         if src_text == "TXT" and self.TXTDATALOADED:
-            data_type = self.qerp["TXT"]["read"]
+            data_type = self.txt_seltype
             data_col_tmp = self.qerp["TXT"]["data_Max_cols"]
             data_col = [str(i) for i in list(range(data_col_tmp))]
             for test_name, test in self.select_box.items():
