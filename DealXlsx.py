@@ -24,33 +24,47 @@ def load_config():
 
 
 class DealXlsx:
-    def __init__(self, _qerp:dict):
+    def __init__(self, _qerp:dict,rootpath=None):
         self.qerp = _qerp
-        self.excel_path = self.qerp["initialdir"]
+        self.excel_path = rootpath
         
     def open_data_folder(self):
         """
         在当前路径找不到数据文件的情况下，提示打开数据文件夹
         """
-        self.excel_path = QFileDialog.getOpenFileUrl(dir=self.excel_path)[0].path()
+        self.excel_path = QFileDialog.getExistingDirectory(caption="选择数据文件夹", options=QFileDialog.ShowDirsOnly, dir=self.excel_path)
         if not self.excel_path:
             raise FileNotFoundError("请选择数据文件夹")
         return self.excel_path
         
-    def filter_data_files(self):
+    def filter_data_files(self, path):
         """
         
         """
         # 找到excel_path下所有的数据文件
-        res = []
-        data_files = os.listdir(self.excel_path)
+        res = {}
+        data_files = os.listdir(path)
         flags = self.qerp["EXCEL"]["is_datafile_flag"]
+        for flag in flags:
+            res[flag] = []
         for file in data_files:
             if not file.startswith("~$") and (re.match(r"^.*\.xlsx$", file) or re.match(r"^.*\.xls$", file)): # 排除临时文件和非excel文件
                 for flag in flags:
                     if flag in file: # 匹配数据文件标志
-                        res.append(file)
+                        res[flag].append(file)
                         break
+        
+        # 删除空数据文件
+        del_keys = []
+        for key in res.keys():
+            if res[key] == []:
+                del_keys.append(key)
+        for key in del_keys:
+            del res[key]
+        
+        # 排序数据文件
+        for key in res.keys():
+            res[key] = sorted(res[key], key=lambda x: x.split("_")[-1])
         return res
         
     def deal_data_file(self, file_name):
@@ -85,10 +99,14 @@ class DealXlsx:
         return res
     
     def deal_data_folder(self):
-        data_files = self.filter_data_files()
+        path = self.open_data_folder()
+        data_files = self.filter_data_files(path)
         res = {}
-        for file in data_files:
-            res[file] = self.deal_data_file(file)
+        for key, data_files in data_files.items():
+            tmp = {}
+            for file in data_files:
+                tmp[file] = self.deal_data_file(file)
+            res[key] = tmp
         rich.inspect(res)
         return res
     

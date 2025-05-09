@@ -9,8 +9,9 @@
         "seq_start": "SEQ.",
         "seq_end": "----------------",
         "pass": "---------- PASS",
-        "read": ["Reading", "Vdc Read", "Vpp Read"],
-        "noread": ["Pdc Reading", "Reading/", "Td Reading"],
+        "read": ["Reading", "Min", "Reading/+", "Vdc Read", "Vpp Read"],
+        "noread": ["Pdc Reading", "Td Reading"],
+        "data_Max_cols": 15,
         "read_end": "+++"
     },
     "EXCEL": {
@@ -84,12 +85,12 @@
         "FSJ014-7LCG": {
             "100v/60hz Iin<13A": ["TXT", "8: Input/Output Test (100V/60HZ Iin<13A) ", "Reading", "0"],
             "240v/60hz Iin<10A": ["TXT", "9: Input/Output Test (240V/60HZ Iin<10A) ", "Reading", "0"],
-            "240VDC Iin<10A": ["EXCEL", "NA", "NA", "NA"],
-            "浪涌电流<25A": ["TXT", "2: Turn On & Sequence Test (T1&3&4&10(264V)) ", "NA", "0"],
-            "10% load 效率>85%": ["EXCEL", "NA", "NA", "NA"],
-            "20% load 效率>90.5%": ["EXCEL", "NA", "NA", "NA"],
-            "50% load 效率>93%": ["EXCEL", "NA", "NA", "NA"],
-            "100% load 效率>90%": ["EXCEL", "NA", "NA", "NA"],
+            "240VDC Iin<10A": ["063_", "SEQ4:Input Current Calibration(240Vdc&166.7A)", "Input Current", "NA"],
+            "浪涌电流<25A": ["TXT", "2: Turn On & Sequence Test (T1&3&4&10(264V)) ", "Reading/+", "0"],
+            "10% load 效率>85%": ["135_", "SEQ4:Input&Output Test(230V&50%Load)", "230V&50%Load Efficiency", "NA"],
+            "20% load 效率>90.5%": ["135_", "SEQ3:Input&Output Test(230V&20%Load)", "230V&20%Load Efficiency", "NA"],
+            "50% load 效率>93%": ["135_", "SEQ4:Input&Output Test(230V&50%Load)", "230V&50%Load Efficiency", "NA"],
+            "100% load 效率>90%": ["135_", "SEQ5:Input&Output Test(230V&100%Load)", "230V&100%Load Efficiency", "NA"],
             "12v/166.7A 11.4~12.6V": ["TXT", "7: Input/Output Test (100%) ", "Vdc Read", "0"],
             "12vs/3A 11.4~12.6V": ["TXT", "7: Input/Output Test (100%) ", "Vdc Read", "4"],
             "12v/0A 11.4~12.6V": ["TXT", "4: Input/Output Test (10%) ", "Vdc Read", "1"],
@@ -97,12 +98,10 @@
             "12v Ripple/noise<0.12V": ["TXT", "7: Input/Output Test (100%) ", "Vpp Read", "0"],
             "12vs Ripple/noise<0.12V": ["TXT", "7: Input/Output Test (100%) ", "Vpp Read", "4"],
             "测试是否满足规格要求": ["TXT", "7: Input/Output Test (100%) ", "Vpp Read", "0"],
-            "PASS": ["EXCEL", "NA", "NA", "NA"],
-            "184A/12V 0~3V": ["EXCEL", "NA", "NA", "NA"],
-            "184A/12Vs 11.4~12.6V": ["EXCEL", "NA", "NA", "NA"],
-            "101A/12V 0~3V": ["EXCEL", "NA", "NA", "NA"],
-            "101A/12Vs 11.4~12.6V": ["EXCEL", "NA", "NA", "NA"],
-            "N/A": ["EXCEL", "NA", "NA", "NA"]
+            "184A/12V 0~3V": ["135_", "SEQ6:250V OCP1 TEST(180A&50mS )", "12V/Voltage", "NA"],
+            "184A/12Vs 11.4~12.6V": ["135_", "SEQ6:250V OCP1 TEST(180A&50mS )", "12Vs/Voltage", "NA"],
+            "101A/12V 0~3V": ["135_", "SEQ1:115V OCP1 TEST(98A&50mS)", "12V/Voltage", "NA"],
+            "101A/12Vs 11.4~12.6V": ["135_", "SEQ1:115V OCP1 TEST(98A&50mS)", "12Vs/Voltage", "NA"]
         }
     }
 }

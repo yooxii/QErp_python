@@ -1,4 +1,5 @@
 import os
+import select
 import sys
 import json
 from rich import inspect
@@ -9,6 +10,7 @@ from PySide2.QtWidgets import *
 from RPMainWindow import Ui_MainWindow
 
 import DealTxt as dt
+import DealXlsx as dx
 
 def find_tests_name(sheet, rp_flag):
     """找到测试项目名称和起始位置"""
@@ -58,6 +60,8 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         
         self.title1 = u"QErp-曙光报告辅助工具" # 主标题
         self.title2 = "" # 副标题
+        self.rootpath = "" # 根路径
+        self.select_box = {} # 保存了选择框的字典
         
         if self.load_config():
             self.show_start_window()
@@ -114,7 +118,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
 
     def load_selects(self):
         """加载txt选择项"""
-        selects = self.qerp['Select'][self.Model]
+        selects = self.qerp['Select'][self.Model] # 从配置文件中获取选择项
         # 选取txt['select']的每一个元素的第一个，如果是字符串，则设置select_box的对应位置的值
         warnings = []
         # if not self.TXTDATALOADED:
@@ -132,7 +136,8 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
                 if selects[select_key][0] == "TXT" and self.TXTDATALOADED:
                     for i in range(len(selects[select_key])):
                         self.select_box[select_key][i].setCurrentText(str(selects[select_key][i]))
-                elif selects[select_key][0] == "Excel" and self.EXCELDATALOADED:
+                    
+                elif selects[select_key][0] in self.qerp["EXCEL"]["is_datafile_flag"] and self.EXCELDATALOADED:
                     for i in range(len(selects[select_key])):
                         self.select_box[select_key][i].setCurrentText(str(selects[select_key][i]))
         if warnings:
@@ -145,21 +150,20 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.rootpath = os.path.dirname(self.report_path)
         self.wb = xl.load_workbook(self.report_path)
         self.show_tests()
-        
+
     def save_report(self):
         """保存报告文件"""
-        if not self.test_datas:
+        if not self.txt_datas:
             QMessageBox.warning(self, "错误", "没有数据，无法保存")
             return
         save_path = QFileDialog.getSaveFileName(self,"保存报告",self.rootpath, filter='Excel(*.xlsx *.xls)')[0]
         if not save_path:
             return
         
-        seqs_txt = self.test_datas
         tests_cell = self.test_cell
         tests_box = self.select_box
 
-        for i in range(len(seqs_txt)):
+        for i in range(3):
             for _, select_key in enumerate(tests_cell.keys()):
                 data_src = tests_box[select_key][0].currentText()
                 select = tests_box[select_key][1].currentText()
@@ -170,6 +174,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
                     col = tests_cell[select_key]['col'] + i + 1
                     
                     if data_src == "TXT" and self.TXTDATALOADED:
+                        seqs_txt = self.txt_datas
                         value = seqs_txt[i].get(select, "")
                         if not value:
                             continue
@@ -181,18 +186,26 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
                             Cvalue = float(value["Reading/+"][data_col])+float(value["Min"][data_col])
                         else:
                             Cvalue = value[data_type][data_col]
-                        # 保留三位小数
-                        Cell = self.st.cell(row=row, column=col)
-                        Cell.number_format = '0.000'
-                        tmp = float(Cvalue)
-                        Cell.value = tmp if tmp > 0 else -tmp # 取绝对值
                     
-                    elif data_src == "Excel" and self.EXCELDATALOADED:
-                        pass # TODO: 读取excel数据
+                    elif data_src in self.qerp["EXCEL"]["is_datafile_flag"] and self.EXCELDATALOADED:
+                        excel_datas = list(self.excel_datas[tests_box[select_key][0].currentText()].values())
+                        value = excel_datas[i].get(select, "")
+                        if not value:
+                            continue
+                        data_type = tests_box[select_key][2].currentText()
+                        if data_type == "NA":
+                            continue
+                        Cvalue = value[data_type]
+                    
+                    # 保留三位小数
+                    Cell = self.st.cell(row=row, column=col)
+                    Cell.number_format = '0.000'
+                    tmp = float(Cvalue)
+                    Cell.value = tmp if tmp > 0 else -tmp # 取绝对值
 
         self.wb.save(save_path)
         QMessageBox.information(self, "成功", "保存成功")
-        
+
     def save_selects(self):
         """保存选择项到配置文件"""
         selects = {}
@@ -204,7 +217,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.qerp['Select'][self.Model] = selects
         with open(self.cfgPath, 'w', encoding='utf-8') as f:
             json.dump(self.qerp, f, ensure_ascii=False, indent=4)
-            
+
     def reset_window(self, layout: QLayout = None):
         """重置窗口布局"""
         if layout is not None:
@@ -224,9 +237,9 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.st = self.wb[self.report['sheet_name']]
         res = find_tests_name(self.st, self.report)
         self.test_cell = res
-        self.seltype = self.qerp["TXT"]["read"]
-        if "Min" in self.seltype:
-            self.seltype.remove("Min")
+        self.txt_seltype = self.qerp["TXT"]["read"]
+        if "Min" in self.txt_seltype:
+            self.txt_seltype.remove("Min")
         
         inspect(res)
         
@@ -239,8 +252,6 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         self.testTitles_layout.setSpacing(0)
         self.testTitles_layout.setAlignment(Qt.AlignTop)
         self.testTitles_layout.setSizeConstraint(QLayout.SetFixedSize)
-
-        self.select_box = {}
         
         test_layout = QGridLayout()
         test_layout.setContentsMargins(0, 0, 0, 0)
@@ -334,43 +345,110 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
         test_box.append(data_col)
         
         return test_box
-        
-    def open_data_txt(self):
-        """打开并处理数据txt文件"""
-        DT = dt.DealTxt()
-        self.test_datas = DT.deal_data(qerp=self.qerp)
-        test_data = self.test_datas[0]
-        # inspect(test_data)
-        self.TXTDATALOADED = True
-        
+
+    def init_select_box(self):
+        if not self.TXTDATALOADED and not self.EXCELDATALOADED:
+            return
         for test_name, test in self.select_box.items():
             test_select_src = test[0]
             test_select_src.clear()
             test_select_src.addItem("NA")
             test_select_src.addItem("TXT")
-            test_select_src.addItem("EXCEL")
+            test_select_src.addItems(self.qerp["EXCEL"]["is_datafile_flag"])
+            test_select_src.currentIndexChanged.connect(self.on_data_src_changed)
             
             test_select_data = test[1]
             test_select_data.clear()
             test_select_data.addItem("NA")
-            test_select_data.addItems(list(test_data.keys()))
             
             test_select_type = test[2]
             test_select_type.clear()
             test_select_type.addItem("NA")
-            test_select_type.addItems(self.seltype)
             
             test_select_col = test[3]
             test_select_col.clear()
             test_select_col.addItem("NA")
-            test_select_col.addItems("0123456789")
-            
+
+    def open_data_txt(self):
+        """打开并处理数据txt文件"""
+        DT = dt.DealTxt()
+        self.txt_datas = DT.deal_data(qerp=self.qerp)
+        self.txt_selects = list(self.txt_datas[0])
+        self.TXTDATALOADED = True
+        
+        self.init_select_box()
+
         if self.auto_load_select:
             self.load_selects()
 
     def open_data_excel(self):
+        DX = dx.DealXlsx(self.qerp, self.rootpath)
+        self.excel_datas = DX.deal_data_folder()
+        self.excel_types = list(self.excel_datas)
+
+        excel_key = {}
+        excel_seq = {}
+        for key, value in self.excel_datas.items():
+            excel_key[key] = list(list(value.values())[0])
+            tmp  = {}
+            for seq, data in list(value.values())[0].items():
+                tmp[seq] = list(data)
+            excel_seq[key] = tmp
+
+        self.excel_selects_key = excel_key # 保存多种excel数据文件的选择项，两层字典
+        self.excel_selects = excel_seq # 保存多种excel数据文件的选择项，三层字典
         
         self.EXCELDATALOADED = True
+        
+        if self.auto_load_select:
+            self.load_selects()
+
+    def on_data_src_changed(self, index):
+        """数据来源选择框改变事件"""
+        src_select = self.sender()
+        src_text = self.sender().currentText()
+        if src_text == "TXT" and self.TXTDATALOADED:
+            data_type = self.qerp["TXT"]["read"]
+            data_col_tmp = self.qerp["TXT"]["data_Max_cols"]
+            data_col = [str(i) for i in list(range(data_col_tmp))]
+            for test_name, test in self.select_box.items():
+                if test[0] is src_select:
+                    test[1].clear()
+                    test[1].addItem("NA")
+                    test[1].addItems(self.txt_selects)
+                    test[2].clear()
+                    test[2].addItem("NA")
+                    test[2].addItems(data_type)
+                    test[3].clear()
+                    test[3].addItem("NA")
+                    test[3].addItems(data_col)
+            
+        elif src_text in self.qerp["EXCEL"]["is_datafile_flag"]:
+            for test_name, test in self.select_box.items():
+                if test[0] is src_select:
+                    test[1].clear()
+                    test[1].addItem("NA")
+                    test[1].addItems(self.excel_selects_key[src_text])
+                    test[1].currentIndexChanged.connect(self.on_data_select_changed)
+        else:
+            return
+    
+    def on_data_select_changed(self):
+        """数据选择框改变事件"""
+        seq_select = self.sender()
+        seq_text = self.sender().currentText()
+        if seq_text == "NA":
+            return
+        for test_name, test in self.select_box.items():
+            if test[1] is seq_select:
+                if not test[0].currentText() in self.excel_selects_key.keys():
+                    continue
+                data_type = list(self.excel_selects[test[0].currentText()][seq_text])
+                test[2].clear()
+                test[2].addItem("NA")
+                test[2].addItems(data_type)
+                test[3].clear()
+                test[3].addItem("NA")
 
     def import_sets(self):
         """导入配置文件"""
@@ -404,7 +482,7 @@ class RPMainWindow(QMainWindow, Ui_MainWindow):
 
         self.about_win.show()
         self.about_win.activateWindow()
- 
+
     def closeEvent(self, event):
         """关闭事件处理"""
         reply = QMessageBox.question(self, '退出',
